@@ -77,11 +77,11 @@ export function Top() {
               <Link
                 key={item.id}
                 to="/news/$newsId"
-                params={{ newsId: item.id }}
+                params={{ newsId: item.id ?? '' }}
                 className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow"
               >
                 <time className="text-sm text-gray-500">
-                  {new Date(item.published_at).toLocaleDateString('ja-JP')}
+                  {item.published_at ? new Date(item.published_at).toLocaleDateString('ja-JP') : ''}
                 </time>
                 <h3 className="mt-2 text-xl font-semibold text-gray-900 line-clamp-2">
                   {item.title}
@@ -116,15 +116,15 @@ export function Top() {
                 <Link
                   key={event.id}
                   to="/events/$eventId"
-                  params={{ eventId: event.id }}
+                  params={{ eventId: event.id ?? '' }}
                   className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow"
                 >
                   <time className="text-sm text-indigo-600 font-medium">
-                    {new Date(event.date).toLocaleDateString('ja-JP', {
+                    {event.date ? new Date(event.date).toLocaleDateString('ja-JP', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric'
-                    })}
+                    }) : ''}
                   </time>
                   <h3 className="mt-2 text-xl font-semibold text-gray-900">
                     {event.title}

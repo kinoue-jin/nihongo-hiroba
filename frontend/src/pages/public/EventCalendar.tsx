@@ -6,9 +6,16 @@ import type { Event, ScheduleSession } from '../../types/api';
 
 // Lazy load FullCalendar
 const FullCalendarComponent = lazy(() => import('@fullcalendar/react'));
-const dayGridPlugin = lazy(() => import('@fullcalendar/daygrid').then(module => ({ default: module.default })));
-const timeGridPlugin = lazy(() => import('@fullcalendar/timegrid').then(module => ({ default: module.default })));
-const listPlugin = lazy(() => import('@fullcalendar/list').then(module => ({ default: module.default })));
+// FullCalendar plugins are PluginDef objects, not React components
+const dayGridPlugin = lazy(() =>
+  import('@fullcalendar/daygrid').then(m => ({ default: m.default as any }))
+);
+const timeGridPlugin = lazy(() =>
+  import('@fullcalendar/timegrid').then(m => ({ default: m.default as any }))
+);
+const listPlugin = lazy(() =>
+  import('@fullcalendar/list').then(m => ({ default: m.default as any }))
+);
 
 interface CalendarEvent {
   id: string;
@@ -70,7 +77,7 @@ export function EventCalendar() {
   }, [events, sessions]);
 
   const calendarOptions = useMemo(() => ({
-    plugins: [dayGridPlugin, timeGridPlugin, listPlugin],
+    plugins: [dayGridPlugin, timeGridPlugin, listPlugin] as any,
     initialView: 'dayGridMonth',
     headerToolbar: {
       left: 'prev,next today',
@@ -90,7 +97,7 @@ export function EventCalendar() {
       week: '週',
       list: 'リスト'
     }
-  }), [calendarEvents]);
+  }), [calendarEvents, dayGridPlugin, timeGridPlugin, listPlugin]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

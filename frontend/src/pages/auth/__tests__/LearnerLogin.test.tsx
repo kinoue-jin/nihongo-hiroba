@@ -1,13 +1,12 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { LearnerLogin } from '../LearnerLogin'
 
 const mockNavigate = vi.fn()
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom')
-  return { ...actual, useNavigate: () => mockNavigate }
-})
+vi.mock('@tanstack/react-router', () => ({
+  useNavigate: () => mockNavigate,
+}))
 
 vi.mock('../../../lib/apiClient', () => ({
   supabase: {
@@ -18,6 +17,10 @@ vi.mock('../../../lib/apiClient', () => ({
 }))
 
 describe('LearnerLogin', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it('renders login form', () => {
     render(<MemoryRouter><LearnerLogin /></MemoryRouter>)
     expect(screen.getByText('学習者ログイン')).toBeTruthy()
@@ -53,7 +56,7 @@ describe('LearnerLogin', () => {
     fireEvent.click(screen.getByText('ログイン'))
 
     await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/learner/mypage')
+      expect(mockNavigate).toHaveBeenCalledWith({ to: '/learner/mypage' })
     })
   })
 })

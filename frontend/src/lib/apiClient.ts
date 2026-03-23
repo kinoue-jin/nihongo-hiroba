@@ -30,6 +30,13 @@ export const fastapi = {
       body: JSON.stringify(body)
     }),
 
+  patch: async (path: string, body: unknown) =>
+    fetch(`${API_URL}${path}`, {
+      method: "PATCH",
+      headers: { ...await getAuthHeader(), "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    }),
+
   delete: async (path: string) =>
     fetch(`${API_URL}${path}`, {
       method: "DELETE",

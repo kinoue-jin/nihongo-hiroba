@@ -32,17 +32,17 @@ export function NewsList() {
             <Link
               key={item.id}
               to="/news/$newsId"
-              params={{ newsId: item.id }}
+              params={{ newsId: item.id ?? '' }}
               data-testid="news-item"
               className="block bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow"
             >
               <div className="flex items-center gap-4 mb-3">
                 <time className="text-sm text-gray-500">
-                  {new Date(item.published_at).toLocaleDateString('ja-JP', {
+                  {item.published_at ? new Date(item.published_at).toLocaleDateString('ja-JP', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
-                  })}
+                  }) : ''}
                 </time>
               </div>
               <h2 className="text-xl font-semibold text-gray-900 mb-2">

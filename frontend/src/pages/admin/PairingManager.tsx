@@ -39,13 +39,6 @@ interface Session {
   venue: string
 }
 
-interface Pairing {
-  id: string
-  member_id: string
-  learner_id: string
-  status: 'proposed' | 'confirmed' | 'cancelled'
-}
-
 interface RegisteredMember extends Member {
   registered_at: string
 }
@@ -136,17 +129,6 @@ export function PairingManager() {
     mutationFn: async () => {
       const res = await fastapi.post(`/sessions/${selectedSession}/generate-pairings`, {})
       if (!res.ok) throw new Error('Failed to generate pairings')
-      return res.json()
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pairings'] })
-    },
-  })
-
-  const updatePairingMutation = useMutation({
-    mutationFn: async ({ pairingId, status }: { pairingId: string; status: string }) => {
-      const res = await fastapi.patch(`/pairings/${pairingId}`, { status })
-      if (!res.ok) throw new Error('Failed to update pairing')
       return res.json()
     },
     onSuccess: () => {

@@ -25,7 +25,7 @@ export function LearnerLogin() {
         return
       }
 
-      navigate('/learner/mypage')
+      navigate({ to: '/learner/mypage' })
     } finally {
       setIsLoading(false)
     }

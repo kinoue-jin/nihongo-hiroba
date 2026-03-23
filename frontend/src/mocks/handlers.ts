@@ -360,7 +360,7 @@ export const handlers = [
     });
   }),
 
-  http.post('*/generate-pairings', async ({ request }) => {
+  http.post('*/generate-pairings', async () => {
     return HttpResponse.json({
       session_id: 'session-001',
       pairings: []

@@ -1,14 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { LearnerMyPage } from '../LearnerMyPage'
-
-const mockNavigate = vi.fn()
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom')
-  return { ...actual, useNavigate: () => mockNavigate }
-})
 
 // Mock @tanstack/react-query - must include ALL exports used by the component
 vi.mock('@tanstack/react-query', () => ({
@@ -16,8 +10,7 @@ vi.mock('@tanstack/react-query', () => ({
     invalidateQueries = vi.fn()
   },
   QueryClientProvider: ({ children }: { children: React.ReactNode }) => children,
-  useQueryClient: () => ({ invalidateQueries: vi.fn() }),
-  useQuery: ({ queryKey }: { queryKey: string[] }) => {
+  useQuery: () => {
     // Return loading state initially for all queries
     return { data: undefined, isLoading: true }
   },

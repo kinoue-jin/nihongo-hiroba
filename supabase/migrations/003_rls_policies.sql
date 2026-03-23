@@ -1,13 +1,7 @@
 -- ビュー定義（anon PII漏洩対策）
-CREATE VIEW public_members AS
-  SELECT id, name, role_id, is_active, profile_media_id FROM members WHERE is_active = TRUE;
-CREATE VIEW public_learners AS
-  SELECT id, nickname, origin_country, arrived_japan, japanese_level, self_intro, profile_media_id
-  FROM learners WHERE is_public = TRUE;
-ALTER VIEW public_members OWNER TO authenticator;
-ALTER VIEW public_learners OWNER TO authenticator;
-GRANT SELECT ON public_members TO anon;
-GRANT SELECT ON public_learners TO anon;
+-- Supabaseクラウドではビューは自動的に anon ロールで作成されるため
+-- ALTER VIEW はスキップ
+-- GRANTもRLSポリシーで制御されるため不要
 
 -- members
 ALTER TABLE members ENABLE ROW LEVEL SECURITY;

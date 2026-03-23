@@ -137,6 +137,7 @@ async def get_signed_url(
 
     Private media (is_public=false) requires a signed URL for access.
     Signed URLs expire after 1 hour.
+    Only the uploader or staff/admin can access private media signed URLs.
     """
     supabase = get_supabase_client()
 
@@ -152,6 +153,22 @@ async def get_signed_url(
 
     if media["is_public"]:
         return SignedUrlResponse(url=media["url"], expires_in=31536000)  # 1 year for public
+
+    # Check authorization - user must own the media or be staff/admin
+    user_role = user.app_metadata.get("role", "")
+    user_id = user.sub
+
+    is_owner = (
+        (media.get("uploaded_by_member_id") == user_id) or
+        (media.get("uploaded_by_learner_id") == user_id)
+    )
+    is_staff_or_admin = user_role in ("staff", "admin")
+
+    if not is_owner and not is_staff_or_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to access this media",
+        )
 
     # For private media, generate signed URL
     storage_service = StorageService()

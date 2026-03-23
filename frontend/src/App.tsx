@@ -15,9 +15,7 @@ const queryClient = new QueryClient({
 
 // Start MSW worker if using mock
 if (import.meta.env.VITE_USE_MOCK === 'true') {
-  worker.start().then(() => {
-    console.log('MSW worker started');
-  });
+  worker.start();
 }
 
 export function App() {

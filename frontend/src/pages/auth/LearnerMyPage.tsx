@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { supabase } from '../../lib/apiClient'
 import { fastapi } from '../../lib/apiClient'
@@ -30,7 +30,6 @@ interface LearningRecord {
 
 export function LearnerMyPage() {
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
 
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ['learnerProfile'],
@@ -58,7 +57,7 @@ export function LearnerMyPage() {
       await supabase.auth.signOut()
     },
     onSuccess: () => {
-      navigate('/login')
+      navigate({ to: '/login' })
     },
   })
 
@@ -71,7 +70,7 @@ export function LearnerMyPage() {
   }
 
   if (!profile) {
-    navigate('/login')
+    navigate({ to: '/login' })
     return null
   }
 

@@ -1,19 +1,17 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, waitFor, fireEvent } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MemoryRouter } from 'react-router-dom'
 import { LearnerManager } from '../LearnerManager'
-
-const mockQueryClient = {
-  invalidateQueries: vi.fn(),
-}
 
 vi.mock('@tanstack/react-query', () => ({
   QueryClient: class {
     invalidateQueries = vi.fn()
   },
   QueryClientProvider: ({ children }: { children: React.ReactNode }) => children,
-  useQueryClient: () => mockQueryClient,
+  useQueryClient: () => ({
+    invalidateQueries: vi.fn()
+  }),
   useQuery: ({ queryKey }: { queryKey: string[] }) => {
     if (queryKey[0] === 'learners') {
       return {
@@ -50,7 +48,7 @@ vi.mock('../../../lib/apiClient', () => ({
 
 function TestWrapper({ children }: { children: React.ReactNode }) {
   return (
-    <QueryClientProvider client={new (require('@tanstack/react-query').QueryClient)()}>
+    <QueryClientProvider client={new QueryClient()}>
       <MemoryRouter>{children}</MemoryRouter>
     </QueryClientProvider>
   )
