@@ -52,9 +52,19 @@ frontend/.env.local:
 ### CSRF方針
 Bearer トークン（JWT）のみ・Cookie認証不使用 → CSRF対策不要
 
-### apiClient.tsアーキテクチャ
-① Supabase PostgREST（直接）: 公開データ読み取り → supabase.from('news').select()
-② FastAPI（独立APIサーバー）: ビジネスロジック → fastapi.post('/auth/login')
+### apiClient.tsアーキテクチャ（全FastAPI経由）
+全データ取得・更新 → FastAPI経由に統一
+
+認証の実装：
+  ログイン → fastapi.post('/auth/login') ← FastAPI経由
+  ログアウト → fastapi.post('/auth/logout') ← FastAPI経由
+  セッション管理 → supabase.auth.getSession() ← Supabase Auth直接
+  ログイン状態監視 → supabase.auth.onAuthStateChange() ← Supabase Auth直接
+
+理由：トークンリフレッシュとセッション状態管理はSupabase JSが自動処理するため
+
+❌ 使わない：supabase.from('...').select() / supabase.from('...').insert()
+✅ 全部これ：fastapi.get('/sessions/') / fastapi.post('/news/')
 
 ---
 
@@ -872,6 +882,43 @@ done
 ```
 
 ---
+
+---
+
+## Agent B-0への追加指示（重要）
+
+### マイグレーションフォルダの配置
+supabase/migrations/ は必ずプロジェクトルート直下に作成する：
+
+```
+✅ 正しい場所：
+nihongo-hiroba/supabase/migrations/001_create_tables.sql
+
+❌ 間違い（supabase db pushが認識しない）：
+nihongo-hiroba/backend/supabase/migrations/001_create_tables.sql
+```
+
+### マイグレーション適用後の確認
+supabase db push 実行後に必ず確認：
+- 「up to date」のみ表示 → フォルダ構造が間違っている
+- SQLが表示されてテーブルが作成される → 正常
+
+### 実装完了後チェックリスト
+全Agent完了後に以下を確認してから停止する：
+
+```
+□ supabase/migrations/ がプロジェクトルート直下にあるか
+□ supabase db push でテーブルが作成されたか
+□ Supabase Table Editorで全19テーブルが存在するか
+□ master_items テーブルにシードデータがあるか
+□ RLSポリシーが全テーブルに適用されているか
+□ backend/.env.local が存在するか
+□ frontend/.env.local に VITE_USE_MOCK=false があるか
+□ pytest tests/ → 全テストGreen
+□ npm test → 全テストGreen
+```
+
+問題があれば自動修正してから停止すること。
 
 ## テストフェーズ（全Agent完了後に自動実行）
 
