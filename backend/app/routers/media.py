@@ -1,8 +1,14 @@
 """Media router with file upload, sanitization and MIME validation"""
 import uuid
-import magic
 import os
+import mimetypes
 from typing import Optional, List
+
+try:
+    import magic
+    MAGIC_AVAILABLE = True
+except ImportError:
+    MAGIC_AVAILABLE = False
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status, Request, UploadFile, File, Form
 from pydantic import BaseModel
@@ -40,13 +46,23 @@ def sanitize_filename(original: str) -> str:
     return f"{uuid.uuid4()}.{ext}"
 
 
-def validate_mime_type(file_content: bytes) -> str:
+def validate_mime_type(file_content: bytes, filename: Optional[str] = None) -> str:
     """
     Validate MIME type using python-magic.
 
     Checks the actual file content, not just the extension.
+    Falls back to filename-based detection if python-magic is not available.
     """
-    actual_mime = magic.from_buffer(file_content, mime=True)
+    if MAGIC_AVAILABLE:
+        actual_mime = magic.from_buffer(file_content, mime=True)
+    else:
+        # Fallback: determine MIME type from file extension
+        if filename:
+            mime_type, _ = mimetypes.guess_type(filename)
+            actual_mime = mime_type or 'application/octet-stream'
+        else:
+            actual_mime = 'application/octet-stream'
+
     if actual_mime not in ALLOWED_MIME_TYPES:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -204,7 +220,7 @@ async def upload_media(
     content = await file.read()
 
     # Validate MIME type against actual content
-    validated_mime = validate_mime_type(content)
+    validated_mime = validate_mime_type(content, filename)
 
     # Verify mime_type parameter matches actual content
     if mime_type != validated_mime:
