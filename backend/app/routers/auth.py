@@ -69,42 +69,41 @@ async def login(request: Request, login_data: LoginRequest):
 
     try:
         # Verify password using Supabase Auth
-        auth_response = supabase.auth.sign_in_with_password(
-            email=login_data.email,
-            password=login_data.password,
-        )
+        auth_response = supabase.auth.sign_in_with_password({
+            "email": login_data.email,
+            "password": login_data.password,
+        })
 
         if not auth_response.user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid credentials",
+                detail="メールアドレスまたはパスワードが正しくありません",
             )
 
         # Get user metadata from auth response
         supabase_user_id = auth_response.user.id
-        id_token = auth_response.session.access_token
 
         # Try to find the user in our members table by supabase_user_id
         response = supabase.from_("members").select("*").eq("supabase_user_id", supabase_user_id).execute()
+
         if response.data:
             user = response.data[0]
             role = "admin" if user.get("admin_role") else "staff"
             user_id = str(user["id"])
-            # Verify email matches
             verified_email = user.get("email")
         else:
             # Check learners table
             response = supabase.from_("learners").select("*").eq("supabase_user_id", supabase_user_id).execute()
+
             if response.data:
                 user = response.data[0]
                 role = "learner"
                 user_id = str(user["id"])
-                # Verify email matches
                 verified_email = user.get("email")
             else:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="User not found in system",
+                    detail="ユーザーが見つかりません",
                 )
 
         # Use verified email from database, not from request
@@ -124,7 +123,7 @@ async def login(request: Request, login_data: LoginRequest):
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication failed",
+            detail="認証に失敗しました",
         )
 
 

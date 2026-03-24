@@ -1,22 +1,25 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../../lib/apiClient'
+import { fastapi } from '../../lib/apiClient'
 
 interface Session {
   id: string
   date: string
   venue: string
   class_type_id: string
+  is_cancelled?: boolean
 }
 
 interface Member {
   id: string
   name: string
+  is_active?: boolean
 }
 
 interface Learner {
   id: string
   nickname: string
+  invitation_status?: string
 }
 
 interface MemberRegistration {
@@ -43,23 +46,19 @@ export function RegistrationManager() {
   const { data: sessions } = useQuery({
     queryKey: ['sessionsForRegistration'],
     queryFn: async () => {
-      const res = await supabase
-        .from('schedule_sessions')
-        .select('id, date, venue, class_type_id')
-        .eq('is_cancelled', false)
-        .order('date', { ascending: false })
-      return res.data as Session[]
+      const res = await fastapi.get('/sessions/')
+      if (!res.ok) throw new Error('Failed to fetch sessions')
+      const data = (await res.json()) as Session[]
+      return data.filter(s => !s.is_cancelled)
     },
   })
 
   const { data: memberRegistrations, isLoading: memberLoading } = useQuery({
     queryKey: ['memberRegistrations', selectedSession],
     queryFn: async () => {
-      const res = await supabase
-        .from('member_session_registrations')
-        .select('*, member:member_id(*)')
-        .eq('session_id', selectedSession)
-      return res.data as MemberRegistration[]
+      const res = await fastapi.get(`/sessions/${selectedSession}/member-registrations/`)
+      if (!res.ok) throw new Error('Failed to fetch member registrations')
+      return (await res.json()) as MemberRegistration[]
     },
     enabled: !!selectedSession && registrationType === 'member',
   })
@@ -67,11 +66,9 @@ export function RegistrationManager() {
   const { data: learnerRegistrations, isLoading: learnerLoading } = useQuery({
     queryKey: ['learnerRegistrations', selectedSession],
     queryFn: async () => {
-      const res = await supabase
-        .from('learner_session_registrations')
-        .select('*, learner:learner_id(*)')
-        .eq('session_id', selectedSession)
-      return res.data as LearnerRegistration[]
+      const res = await fastapi.get(`/sessions/${selectedSession}/learner-registrations/`)
+      if (!res.ok) throw new Error('Failed to fetch learner registrations')
+      return (await res.json()) as LearnerRegistration[]
     },
     enabled: !!selectedSession && registrationType === 'learner',
   })
@@ -79,8 +76,10 @@ export function RegistrationManager() {
   const { data: availableMembers } = useQuery({
     queryKey: ['availableMembers'],
     queryFn: async () => {
-      const res = await supabase.from('members').select('id, name').eq('is_active', true)
-      return res.data as Member[]
+      const res = await fastapi.get('/members/')
+      if (!res.ok) throw new Error('Failed to fetch members')
+      const data = (await res.json()) as Member[]
+      return data.filter(m => m.is_active !== false)
     },
     enabled: registrationType === 'member',
   })
@@ -88,22 +87,23 @@ export function RegistrationManager() {
   const { data: availableLearners } = useQuery({
     queryKey: ['availableLearners'],
     queryFn: async () => {
-      const res = await supabase.from('learners').select('id, nickname').eq('invitation_status', 'active')
-      return res.data as Learner[]
+      const res = await fastapi.get('/learners/')
+      if (!res.ok) throw new Error('Failed to fetch learners')
+      const data = (await res.json()) as Learner[]
+      return data.filter(l => l.invitation_status === 'active')
     },
     enabled: registrationType === 'learner',
   })
 
   const registerMutation = useMutation({
     mutationFn: async ({ type, id }: { type: 'member' | 'learner'; id: string }) => {
-      const table = type === 'member' ? 'member_session_registrations' : 'learner_session_registrations'
-      const res = await supabase.from(table).insert({
-        session_id: selectedSession,
+      const endpoint = type === 'member' ? `/sessions/${selectedSession}/member-registrations/` : `/sessions/${selectedSession}/learner-registrations/`
+      const res = await fastapi.post(endpoint, {
         [type === 'member' ? 'member_id' : 'learner_id']: id,
         registered_at: new Date().toISOString(),
       })
-      if (res.error) throw res.error
-      return res.data
+      if (!res.ok) throw new Error('Failed to register')
+      return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['memberRegistrations', 'learnerRegistrations'] })
@@ -112,10 +112,10 @@ export function RegistrationManager() {
 
   const cancelMutation = useMutation({
     mutationFn: async ({ type, id }: { type: 'member' | 'learner'; id: string }) => {
-      const table = type === 'member' ? 'member_session_registrations' : 'learner_session_registrations'
-      const res = await supabase.from(table).update({ status: 'cancelled' }).eq('id', id)
-      if (res.error) throw res.error
-      return res.data
+      const endpoint = type === 'member' ? `/member-registrations/${id}` : `/learner-registrations/${id}`
+      const res = await fastapi.patch(endpoint, { status: 'cancelled' })
+      if (!res.ok) throw new Error('Failed to cancel registration')
+      return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['memberRegistrations', 'learnerRegistrations'] })

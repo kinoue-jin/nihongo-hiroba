@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../../lib/apiClient'
+import { fastapi } from '../../lib/apiClient'
 
 interface NewsCategory {
   id: string
@@ -27,27 +27,26 @@ export function NewsManager() {
   const { data: categories } = useQuery({
     queryKey: ['masterItems', 'news_category'],
     queryFn: async () => {
-      const res = await supabase.from('master_items').select('*').eq('group_key', 'news_category').eq('is_active', true)
-      return res.data as NewsCategory[]
+      const res = await fastapi.get('/master/?group_key=news_category&is_active=true')
+      if (!res.ok) throw new Error('Failed to fetch categories')
+      return (await res.json()) as NewsCategory[]
     },
   })
 
   const { data: newsList, isLoading } = useQuery({
     queryKey: ['news'],
     queryFn: async () => {
-      const res = await supabase
-        .from('news')
-        .select('*, category:category_id(*)')
-        .order('published_at', { ascending: false })
-      return res.data as News[]
+      const res = await fastapi.get('/news/')
+      if (!res.ok) throw new Error('Failed to fetch news')
+      return (await res.json()) as News[]
     },
   })
 
   const createMutation = useMutation({
     mutationFn: async (data: Partial<News>) => {
-      const res = await supabase.from('news').insert(data).select().single()
-      if (res.error) throw res.error
-      return res.data
+      const res = await fastapi.post('/news/', data)
+      if (!res.ok) throw new Error('Failed to create news')
+      return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['news'] })
@@ -58,9 +57,9 @@ export function NewsManager() {
   const updateMutation = useMutation({
     mutationFn: async (data: Partial<News> & { id: string }) => {
       const { id, ...rest } = data
-      const res = await supabase.from('news').update(rest).eq('id', id).select().single()
-      if (res.error) throw res.error
-      return res.data
+      const res = await fastapi.patch(`/news/${id}`, rest)
+      if (!res.ok) throw new Error('Failed to update news')
+      return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['news'] })
@@ -70,8 +69,8 @@ export function NewsManager() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await supabase.from('news').delete().eq('id', id)
-      if (res.error) throw res.error
+      const res = await fastapi.delete(`/news/${id}`)
+      if (!res.ok) throw new Error('Failed to delete news')
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['news'] })

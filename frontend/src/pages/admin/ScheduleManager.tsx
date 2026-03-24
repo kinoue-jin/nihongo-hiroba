@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../../lib/apiClient'
+import { fastapi } from '../../lib/apiClient'
 
 interface ClassType {
   id: string
@@ -38,35 +38,35 @@ export function ScheduleManager() {
   const { data: classTypes } = useQuery({
     queryKey: ['masterItems', 'class_type'],
     queryFn: async () => {
-      const res = await supabase.from('master_items').select('*').eq('group_key', 'class_type').eq('is_active', true)
-      return res.data as ClassType[]
+      const res = await fastapi.get('/master/?group_key=class_type&is_active=true')
+      if (!res.ok) throw new Error('Failed to fetch class types')
+      return (await res.json()) as ClassType[]
     },
   })
 
   const { data: cancelCases } = useQuery({
     queryKey: ['masterItems', 'cancel_case'],
     queryFn: async () => {
-      const res = await supabase.from('master_items').select('*').eq('group_key', 'cancel_case').eq('is_active', true)
-      return res.data as CancelCase[]
+      const res = await fastapi.get('/master/?group_key=cancel_case&is_active=true')
+      if (!res.ok) throw new Error('Failed to fetch cancel cases')
+      return (await res.json()) as CancelCase[]
     },
   })
 
   const { data: sessions, isLoading } = useQuery({
     queryKey: ['sessions'],
     queryFn: async () => {
-      const res = await supabase
-        .from('schedule_sessions')
-        .select('*, class_type:class_type_id(*), cancel_case:cancel_case_id(*)')
-        .order('date', { ascending: false })
-      return res.data as Session[]
+      const res = await fastapi.get('/sessions/')
+      if (!res.ok) throw new Error('Failed to fetch sessions')
+      return (await res.json()) as Session[]
     },
   })
 
   const createMutation = useMutation({
     mutationFn: async (data: Partial<Session>) => {
-      const res = await supabase.from('schedule_sessions').insert(data).select().single()
-      if (res.error) throw res.error
-      return res.data
+      const res = await fastapi.post('/sessions/', data)
+      if (!res.ok) throw new Error('Failed to create session')
+      return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sessions'] })
@@ -77,9 +77,9 @@ export function ScheduleManager() {
   const updateMutation = useMutation({
     mutationFn: async (data: Partial<Session> & { id: string }) => {
       const { id, ...rest } = data
-      const res = await supabase.from('schedule_sessions').update(rest).eq('id', id).select().single()
-      if (res.error) throw res.error
-      return res.data
+      const res = await fastapi.patch(`/sessions/${id}`, rest)
+      if (!res.ok) throw new Error('Failed to update session')
+      return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sessions'] })
@@ -89,8 +89,8 @@ export function ScheduleManager() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await supabase.from('schedule_sessions').delete().eq('id', id)
-      if (res.error) throw res.error
+      const res = await fastapi.delete(`/sessions/${id}`)
+      if (!res.ok) throw new Error('Failed to delete session')
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['sessions'] })

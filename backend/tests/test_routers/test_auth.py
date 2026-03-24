@@ -36,9 +36,10 @@ class MockAuthSession:
 
 class MockAuth:
     """Mock Supabase Auth client"""
-    def sign_in_with_password(self, email: str, password: str):
-        """Mock password sign-in"""
+    def sign_in_with_password(self, credentials: dict):
+        """Mock password sign-in - accepts dict with email and password"""
         # For testing: accept any password, look up user by email
+        email = credentials.get("email")
         return MagicMock(
             user=MockAuthUser(user_id="supabase-auth-uuid", email=email),
             session=MagicMock(access_token="mock-access-token")
@@ -169,7 +170,7 @@ class TestLogin:
         })
 
         assert response.status_code == 401
-        assert "Authentication failed" in response.json()["detail"]
+        assert "認証に失敗しました" in response.json()["detail"]
 
 
 class TestGetMe:

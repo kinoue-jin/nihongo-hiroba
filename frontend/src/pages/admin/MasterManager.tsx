@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../../lib/apiClient'
+import { fastapi } from '../../lib/apiClient'
 
 interface MasterItem {
   id: string
@@ -27,20 +27,17 @@ export function MasterManager() {
   const { data: items, isLoading } = useQuery({
     queryKey: ['masterItems', selectedGroup],
     queryFn: async () => {
-      const res = await supabase
-        .from('master_items')
-        .select('*')
-        .eq('group_key', selectedGroup)
-        .order('order')
-      return res.data as MasterItem[]
+      const res = await fastapi.get(`/master/?group_key=${selectedGroup}`)
+      if (!res.ok) throw new Error('Failed to fetch master items')
+      return (await res.json()) as MasterItem[]
     },
   })
 
   const updateActiveMutation = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const res = await supabase.from('master_items').update({ is_active }).eq('id', id).select().single()
-      if (res.error) throw res.error
-      return res.data
+      const res = await fastapi.patch(`/master/${id}`, { is_active })
+      if (!res.ok) throw new Error('Failed to update master item')
+      return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['masterItems'] })

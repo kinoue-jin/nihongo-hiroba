@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../../lib/apiClient'
 import { fastapi } from '../../lib/apiClient'
 
 interface Member {
@@ -27,24 +26,26 @@ export function UserPermissions() {
   const { data: members, isLoading: membersLoading } = useQuery({
     queryKey: ['membersForPermissions'],
     queryFn: async () => {
-      const res = await supabase.from('members').select('*').order('name')
-      return res.data as Member[]
+      const res = await fastapi.get('/members/')
+      if (!res.ok) throw new Error('Failed to fetch members')
+      return (await res.json()) as Member[]
     },
   })
 
   const { data: learners, isLoading: learnersLoading } = useQuery({
     queryKey: ['learnersForPermissions'],
     queryFn: async () => {
-      const res = await supabase.from('learners').select('*').order('nickname')
-      return res.data as Learner[]
+      const res = await fastapi.get('/learners/')
+      if (!res.ok) throw new Error('Failed to fetch learners')
+      return (await res.json()) as Learner[]
     },
   })
 
   const updateAdminRoleMutation = useMutation({
     mutationFn: async ({ id, admin_role }: { id: string; admin_role: boolean }) => {
-      const res = await supabase.from('members').update({ admin_role }).eq('id', id).select().single()
-      if (res.error) throw res.error
-      return res.data
+      const res = await fastapi.patch(`/members/${id}`, { admin_role })
+      if (!res.ok) throw new Error('Failed to update admin role')
+      return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['membersForPermissions'] })
@@ -53,9 +54,9 @@ export function UserPermissions() {
 
   const updateInvitationMutation = useMutation({
     mutationFn: async ({ id, invitation_status }: { id: string; invitation_status: string }) => {
-      const res = await supabase.from('learners').update({ invitation_status }).eq('id', id).select().single()
-      if (res.error) throw res.error
-      return res.data
+      const res = await fastapi.patch(`/learners/${id}`, { invitation_status })
+      if (!res.ok) throw new Error('Failed to update invitation status')
+      return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['learnersForPermissions'] })

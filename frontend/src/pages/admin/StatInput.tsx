@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../../lib/apiClient'
+import { fastapi } from '../../lib/apiClient'
 
 interface ClassType {
   id: string
@@ -30,27 +30,26 @@ export function StatInput() {
   const { data: classTypes } = useQuery({
     queryKey: ['masterItems', 'class_type'],
     queryFn: async () => {
-      const res = await supabase.from('master_items').select('*').eq('group_key', 'class_type').eq('is_active', true)
-      return res.data as ClassType[]
+      const res = await fastapi.get('/master/?group_key=class_type&is_active=true')
+      if (!res.ok) throw new Error('Failed to fetch class types')
+      return (await res.json()) as ClassType[]
     },
   })
 
   const { data: stats, isLoading } = useQuery({
     queryKey: ['stats'],
     queryFn: async () => {
-      const res = await supabase
-        .from('stats')
-        .select('*, class_type:class_type_id(*)')
-        .order('period_start', { ascending: false })
-      return res.data as Stat[]
+      const res = await fastapi.get('/stats/')
+      if (!res.ok) throw new Error('Failed to fetch stats')
+      return (await res.json()) as Stat[]
     },
   })
 
   const createMutation = useMutation({
     mutationFn: async (data: Partial<Stat>) => {
-      const res = await supabase.from('stats').insert(data).select().single()
-      if (res.error) throw res.error
-      return res.data
+      const res = await fastapi.post('/stats/', data)
+      if (!res.ok) throw new Error('Failed to create stat')
+      return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['stats'] })
@@ -61,9 +60,9 @@ export function StatInput() {
   const updateMutation = useMutation({
     mutationFn: async (data: Partial<Stat> & { id: string }) => {
       const { id, ...rest } = data
-      const res = await supabase.from('stats').update(rest).eq('id', id).select().single()
-      if (res.error) throw res.error
-      return res.data
+      const res = await fastapi.patch(`/stats/${id}`, rest)
+      if (!res.ok) throw new Error('Failed to update stat')
+      return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['stats'] })
@@ -73,8 +72,8 @@ export function StatInput() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await supabase.from('stats').delete().eq('id', id)
-      if (res.error) throw res.error
+      const res = await fastapi.delete(`/stats/${id}`)
+      if (!res.ok) throw new Error('Failed to delete stat')
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['stats'] })

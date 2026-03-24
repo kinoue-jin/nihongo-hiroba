@@ -7,10 +7,12 @@ import {
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { AdminLayout } from './components/layout/AdminLayout';
 
 // Public pages
 import { Top } from './pages/public/Top';
 import { EventCalendar } from './pages/public/EventCalendar';
+import { EventList } from './pages/public/EventList';
 import { NewsList } from './pages/public/NewsList';
 import { EventDetail } from './pages/public/EventDetail';
 import { NewsDetail } from './pages/public/NewsDetail';
@@ -18,7 +20,7 @@ import { About } from './pages/public/About';
 import { Contact } from './pages/public/Contact';
 
 // Auth pages
-import { LearnerLogin } from './pages/auth/LearnerLogin';
+import { Login } from './pages/auth/Login';
 import { LearnerMyPage } from './pages/auth/LearnerMyPage';
 
 // Admin pages
@@ -60,7 +62,7 @@ const indexRoute = createRoute({
 const eventsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/events',
-  component: EventListPage
+  component: EventList
 });
 
 // Event detail
@@ -105,21 +107,11 @@ const contactRoute = createRoute({
   component: Contact
 });
 
-// Placeholder component for event list
-function EventListPage() {
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">イベント一覧</h1>
-      <EventCalendar />
-    </div>
-  );
-}
-
 // Auth routes
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
-  component: LearnerLogin
+  component: Login
 });
 
 const learnerMyPageRoute = createRoute({
@@ -132,12 +124,18 @@ const learnerMyPageRoute = createRoute({
 const adminLayoutRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin',
-  component: () => <ProtectedRoute allowedRoles={['admin', 'staff']}><Outlet /></ProtectedRoute>
+  component: () => <ProtectedRoute allowedRoles={['admin', 'staff']}><AdminLayout><Outlet /></AdminLayout></ProtectedRoute>
 });
 
 const adminIndexRoute = createRoute({
   getParentRoute: () => adminLayoutRoute,
   path: '/',
+  component: Dashboard
+});
+
+const adminDashboardRoute = createRoute({
+  getParentRoute: () => adminLayoutRoute,
+  path: 'dashboard',
   component: Dashboard
 });
 
@@ -226,6 +224,7 @@ const routeTree = rootRoute.addChildren([
   learnerMyPageRoute,
   adminLayoutRoute.addChildren([
     adminIndexRoute,
+    adminDashboardRoute,
     pairingRoute,
     recordsRoute,
     learnersRoute,

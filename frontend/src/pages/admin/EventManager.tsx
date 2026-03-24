@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../../lib/apiClient'
+import { fastapi } from '../../lib/apiClient'
 
 interface EventType {
   id: string
@@ -11,6 +11,7 @@ interface EventType {
 interface Member {
   id: string
   name: string
+  is_active?: boolean
 }
 
 interface Event {
@@ -37,35 +38,36 @@ export function EventManager() {
   const { data: eventTypes } = useQuery({
     queryKey: ['masterItems', 'event_type'],
     queryFn: async () => {
-      const res = await supabase.from('master_items').select('*').eq('group_key', 'event_type').eq('is_active', true)
-      return res.data as EventType[]
+      const res = await fastapi.get('/master/?group_key=event_type&is_active=true')
+      if (!res.ok) throw new Error('Failed to fetch event types')
+      return (await res.json()) as EventType[]
     },
   })
 
   const { data: members } = useQuery({
     queryKey: ['members'],
     queryFn: async () => {
-      const res = await supabase.from('members').select('id, name').eq('is_active', true)
-      return res.data as Member[]
+      const res = await fastapi.get('/members/')
+      if (!res.ok) throw new Error('Failed to fetch members')
+      const data = (await res.json()) as Member[]
+      return data.filter(m => m.is_active !== false)
     },
   })
 
   const { data: events, isLoading } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
-      const res = await supabase
-        .from('events')
-        .select('*, event_type:event_type_id(*), host_member:host_member_id(*)')
-        .order('date', { ascending: false })
-      return res.data as Event[]
+      const res = await fastapi.get('/events/')
+      if (!res.ok) throw new Error('Failed to fetch events')
+      return (await res.json()) as Event[]
     },
   })
 
   const createMutation = useMutation({
     mutationFn: async (data: Partial<Event>) => {
-      const res = await supabase.from('events').insert(data).select().single()
-      if (res.error) throw res.error
-      return res.data
+      const res = await fastapi.post('/events/', data)
+      if (!res.ok) throw new Error('Failed to create event')
+      return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events'] })
@@ -76,9 +78,9 @@ export function EventManager() {
   const updateMutation = useMutation({
     mutationFn: async (data: Partial<Event> & { id: string }) => {
       const { id, ...rest } = data
-      const res = await supabase.from('events').update(rest).eq('id', id).select().single()
-      if (res.error) throw res.error
-      return res.data
+      const res = await fastapi.patch(`/events/${id}`, rest)
+      if (!res.ok) throw new Error('Failed to update event')
+      return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events'] })
@@ -88,8 +90,8 @@ export function EventManager() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await supabase.from('events').delete().eq('id', id)
-      if (res.error) throw res.error
+      const res = await fastapi.delete(`/events/${id}`)
+      if (!res.ok) throw new Error('Failed to delete event')
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events'] })

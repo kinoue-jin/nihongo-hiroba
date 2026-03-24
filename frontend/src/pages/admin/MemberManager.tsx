@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../../lib/apiClient'
+import { fastapi } from '../../lib/apiClient'
 
 interface MemberRole {
   id: string
@@ -34,41 +34,40 @@ export function MemberManager() {
   const { data: memberRoles } = useQuery({
     queryKey: ['masterItems', 'member_role'],
     queryFn: async () => {
-      const res = await supabase.from('master_items').select('*').eq('group_key', 'member_role').eq('is_active', true)
-      return res.data as MemberRole[]
+      const res = await fastapi.get('/master/?group_key=member_role&is_active=true')
+      if (!res.ok) throw new Error('Failed to fetch member roles')
+      return (await res.json()) as MemberRole[]
     },
   })
 
   const { data: classTypes } = useQuery({
     queryKey: ['masterItems', 'class_type'],
     queryFn: async () => {
-      const res = await supabase.from('master_items').select('*').eq('group_key', 'class_type').eq('is_active', true)
-      return res.data as ClassType[]
+      const res = await fastapi.get('/master/?group_key=class_type&is_active=true')
+      if (!res.ok) throw new Error('Failed to fetch class types')
+      return (await res.json()) as ClassType[]
     },
   })
 
   const { data: members, isLoading } = useQuery({
     queryKey: ['members'],
     queryFn: async () => {
-      const res = await supabase
-        .from('members')
-        .select('*, role:role_id(*), member_class_types(class_type_id)')
-        .order('name')
-      return res.data as Member[]
+      const res = await fastapi.get('/members/')
+      if (!res.ok) throw new Error('Failed to fetch members')
+      return (await res.json()) as Member[]
     },
   })
 
   const createMutation = useMutation({
     mutationFn: async (data: Partial<Member> & { class_type_ids: string[] }) => {
       const { class_type_ids, ...memberData } = data
-      const res = await supabase.from('members').insert(memberData).select().single()
-      if (res.error) throw res.error
+      const res = await fastapi.post('/members/', memberData)
+      if (!res.ok) throw new Error('Failed to create member')
+      const newMember = await res.json()
       if (class_type_ids.length > 0) {
-        await supabase.from('member_class_types').insert(
-          class_type_ids.map((ctid) => ({ member_id: res.data.id, class_type_id: ctid }))
-        )
+        await fastapi.post(`/members/${newMember.id}/class-types`, { class_type_ids })
       }
-      return res.data
+      return newMember
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['members'] })
@@ -79,15 +78,13 @@ export function MemberManager() {
   const updateMutation = useMutation({
     mutationFn: async (data: Partial<Member> & { id: string; class_type_ids: string[] }) => {
       const { id, class_type_ids, ...memberData } = data
-      const res = await supabase.from('members').update(memberData).eq('id', id).select().single()
-      if (res.error) throw res.error
-      await supabase.from('member_class_types').delete().eq('member_id', id)
+      const res = await fastapi.patch(`/members/${id}`, memberData)
+      if (!res.ok) throw new Error('Failed to update member')
+      await fastapi.delete(`/members/${id}/class-types`)
       if (class_type_ids.length > 0) {
-        await supabase.from('member_class_types').insert(
-          class_type_ids.map((ctid) => ({ member_id: id, class_type_id: ctid }))
-        )
+        await fastapi.post(`/members/${id}/class-types`, { class_type_ids })
       }
-      return res.data
+      return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['members'] })
@@ -97,8 +94,8 @@ export function MemberManager() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await supabase.from('members').update({ is_active: false }).eq('id', id)
-      if (res.error) throw res.error
+      const res = await fastapi.patch(`/members/${id}`, { is_active: false })
+      if (!res.ok) throw new Error('Failed to deactivate member')
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['members'] })

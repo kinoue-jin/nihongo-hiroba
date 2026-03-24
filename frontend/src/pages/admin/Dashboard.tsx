@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { supabase } from '../../lib/apiClient'
+import { fastapi } from '../../lib/apiClient'
 
 interface Stats {
   total_members: number
@@ -12,18 +12,16 @@ export function Dashboard() {
   const { data: stats, isLoading } = useQuery({
     queryKey: ['dashboardStats'],
     queryFn: async () => {
-      const [membersRes, learnersRes, sessionsRes, eventsRes] = await Promise.all([
-        supabase.from('members').select('id', { count: 'exact', head: true }),
-        supabase.from('learners').select('id', { count: 'exact', head: true }),
-        supabase.from('schedule_sessions').select('id', { count: 'exact', head: true }),
-        supabase.from('events').select('id', { count: 'exact', head: true }),
-      ])
-
+      const response = await fastapi.get('/admin/stats')
+      if (!response.ok) {
+        throw new Error('Failed to fetch stats')
+      }
+      const data = await response.json()
       return {
-        total_members: membersRes.count ?? 0,
-        total_learners: learnersRes.count ?? 0,
-        total_sessions: sessionsRes.count ?? 0,
-        total_events: eventsRes.count ?? 0,
+        total_members: data.total_members ?? 0,
+        total_learners: data.total_learners ?? 0,
+        total_sessions: data.total_sessions ?? 0,
+        total_events: data.total_events ?? 0,
       } as Stats
     },
   })

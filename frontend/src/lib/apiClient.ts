@@ -7,9 +7,14 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 async function getAuthHeader(): Promise<Record<string, string>> {
+  // Try localStorage first (for JWT from FastAPI auth)
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    return { "Authorization": `Bearer ${token}` };
+  }
+  // Fallback to Supabase session
   const { data: { session } } = await supabase.auth.getSession();
-  const token = session?.access_token;
-  return token ? { "Authorization": `Bearer ${token}` } : {};
+  return session?.access_token ? { "Authorization": `Bearer ${session.access_token}` } : {};
 }
 
 export const fastapi = {

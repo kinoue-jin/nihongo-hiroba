@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../../lib/apiClient'
 import { fastapi } from '../../lib/apiClient'
 
 interface MediaItem {
@@ -26,11 +25,9 @@ export function MediaManager() {
   const { data: mediaList, isLoading } = useQuery({
     queryKey: ['media'],
     queryFn: async () => {
-      const res = await supabase
-        .from('media')
-        .select('*')
-        .order('uploaded_at', { ascending: false })
-      return res.data as MediaItem[]
+      const res = await fastapi.get('/media/')
+      if (!res.ok) throw new Error('Failed to fetch media')
+      return (await res.json()) as MediaItem[]
     },
   })
 
@@ -52,9 +49,9 @@ export function MediaManager() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...data }: Partial<MediaItem> & { id: string }) => {
-      const res = await supabase.from('media').update(data).eq('id', id).select().single()
-      if (res.error) throw res.error
-      return res.data
+      const res = await fastapi.patch(`/media/${id}`, data)
+      if (!res.ok) throw new Error('Failed to update media')
+      return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['media'] })
@@ -63,8 +60,8 @@ export function MediaManager() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await supabase.from('media').delete().eq('id', id)
-      if (res.error) throw res.error
+      const res = await fastapi.delete(`/media/${id}`)
+      if (!res.ok) throw new Error('Failed to delete media')
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['media'] })

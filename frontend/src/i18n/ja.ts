@@ -9,7 +9,7 @@ export default {
   'nav.login': 'ログイン',
 
   // Footer
-  'footer.copyright': '© 2026 にほんごひろば All Rights Reserved.',
+  'footer.copyright': '© 2026 株式会社Hanawa All Rights Reserved.',
 
   // Top page
   'top.title': 'にほんごひろば',

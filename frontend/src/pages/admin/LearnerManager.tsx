@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '../../lib/apiClient'
 import { fastapi } from '../../lib/apiClient'
 
 interface Learner {
@@ -22,11 +21,9 @@ export function LearnerManager() {
   const { data: learners, isLoading } = useQuery({
     queryKey: ['learners'],
     queryFn: async () => {
-      const res = await supabase
-        .from('learners')
-        .select('*')
-        .order('created_at', { ascending: false })
-      return res.data as Learner[]
+      const res = await fastapi.get('/learners/')
+      if (!res.ok) throw new Error('Failed to fetch learners')
+      return (await res.json()) as Learner[]
     },
   })
 
@@ -44,9 +41,9 @@ export function LearnerManager() {
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const res = await supabase.from('learners').update({ invitation_status: status }).eq('id', id)
-      if (res.error) throw new Error('Failed to update status')
-      return res.data
+      const res = await fastapi.patch(`/learners/${id}`, { invitation_status: status })
+      if (!res.ok) throw new Error('Failed to update status')
+      return res.json()
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['learners'] })
@@ -55,9 +52,8 @@ export function LearnerManager() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const res = await supabase.from('learners').delete().eq('id', id)
-      if (res.error) throw new Error('Failed to delete learner')
-      return res.data
+      const res = await fastapi.delete(`/learners/${id}`)
+      if (!res.ok) throw new Error('Failed to delete learner')
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['learners'] })
@@ -144,7 +140,7 @@ export function LearnerManager() {
                         onChange={(e) =>
                           updateStatusMutation.mutate({ id: learner.id, status: e.target.value })
                         }
-                        className={`px-2 py-1 rounded text-sm ${statusLabels[learner.invitation_status].color}`}
+                        className={`px-2 py-1 rounded text-sm ${statusLabels[learner.invitation_status]?.color ?? 'bg-gray-100 text-gray-700'}`}
                       >
                         <option value="pending">保留中</option>
                         <option value="invited">招待済み</option>
