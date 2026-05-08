@@ -28,7 +28,7 @@
 
 ---
 
-## [OPEN] 2026-05-08: Phase 2 調査 — Supabase → Neon 移行計画の策定
+## [APPLIED] 2026-05-08: Phase 2 調査 — Supabase → Neon 移行計画の策定
 **Task type:** docs
 **Review required:** yes
 **Pre-implementation review:** yes
@@ -84,7 +84,24 @@
 - **R2 移行は段階的**: 既存 Supabase Storage の URL を抱えたまま並行運用 → 段階的に R2 URL に切替
 - **認証の選択は PO 判断**: 計画書では Clerk / Supabase Auth 継続の両案を比較表で提示し、最終決定は仁さんに委ねる
 
-**Status:** OPEN
+**Status:** APPLIED
+
+**Applied:**
+- 成果物: `docs/p2-neon-migration.md`（683 行、新規作成）
+- 内容: 5 セクション網羅 + 開始前チェックリスト + Case 別 migration 一覧
+  - §1 現状把握: backend / frontend / migrations / 統計（既存 supabase-py 2.7.4 / 19 テーブル / 41 RLS / 67 箇所の `.from_()` / 282 テスト）
+  - §2 移行先スタック: DB Neon / ORM SQLAlchemy 2.0 async / Storage R2 / 認証 Case A/B 比較表（PO 判断）/ ホスティング Vercel + Railway 維持
+  - §3 移行ステップ Phase 2-A〜2-E（DB → 認可 → Storage → 認証 → 統合テスト）
+  - §4 リスクとロールバック（メンテ時間データ量別見積もり表 + rollback 閾値 + RLS 回帰戦略）
+  - §5 工数見積もり（Case A: 210K–310K / Case B: 290K–460K tokens、並列化図）
+  - §6 開始前チェックリスト（必須実態調査 / PO 判断 / インフラ準備）
+- Plan adversarial review: 3 iterations で convergence: clean 達成
+  - Iter 1: Critical 6 + Important 6 反映
+  - Iter 2: 新規 Critical 3 + Important 4 反映
+  - Iter 3: 残存 0 件（clean）
+  - 詳細は `claude-code-to-cowork.md` のフォーマット B 参照
+- 既存実装は一切変更なし（指示通り「コード変更を一切伴わない調査タスク」）
+- 次のステップ: PO（仁さん）レビュー → Case A/B 判断 → §6.1 実態調査 → Phase 2-A の [OPEN] 起票
 
 ---
 
