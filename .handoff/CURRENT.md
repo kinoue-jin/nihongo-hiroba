@@ -5,7 +5,7 @@
 >
 > 更新タイミング: ステップ切替時 / 重要な決定時 / 毎日の作業開始時（任意）
 
-**Last updated:** 2026-05-08 by Cowork session（**ADR-0001: Case B Clerk 移行確定**。Cowork 内で §6.1 実態調査（grep / collect）完了 → 残り 4 項目を PO データ計測 [OPEN] として起票）
+**Last updated:** 2026-05-08 by Cowork session（small scale 確定 + **pytest 282 passed 0.80s クリア**（Claude Code 並走で完了） → **Phase 2-A 着手可能状態へ到達**。次は Phase 2-A の [OPEN] 起票）
 
 ---
 
@@ -13,18 +13,18 @@
 
 | 項目 | 値 |
 |------|---|
-| **Active phase** | **Phase 2 認証スタック確定（Case B Clerk）** → §6.1 PO データ計測中 |
+| **Active phase** | **Phase 2-A 着手可能** ✅（small scale 確定 + 282 tests Green） |
 | **Active spec** | `CLAUDE.md`（Phase 1 = Agent Teams 並列実装の指示書） |
-| **Active implementation guide** | **`docs/p2-neon-migration.md`**（683 行、Plan review clean） |
-| **Active ADR** | **`docs/adr/0001-auth-stack-case-b-clerk.md`**（Accepted 2026-05-08） |
-| **Current focus** | 仁さんが Supabase Studio で 4 項目計測（Storage / DB / ユーザー数 / MAU）→ 結果を [OPEN] にコメント → Phase 2-A 起票 |
-| **Blocked by** | PO データ計測（Storage / DB 容量 / ユーザー数 / MAU、`cowork-to-claude-code.md` [OPEN] 参照） |
+| **Active implementation guide** | **`docs/p2-neon-migration.md`**（683 行、Plan review clean、下限値見積もりで進行） |
+| **Active ADR** | **`docs/adr/0001-auth-stack-case-b-clerk.md`**（Accepted 2026-05-08、small scale 数値追記済） |
+| **Current focus** | Phase 2-A 起票（SQLAlchemy + asyncpg 導入、計画書 §3.1）— Cowork で draft → 次セッションで [OPEN] 昇格 |
+| **Blocked by** | なし ✅ |
 
 ## オープン項目数
 
 | ファイル | OPEN 数 |
 |---------|---------|
-| `cowork-to-claude-code.md` | 1（Phase 2 §6.1 PO データ計測依頼 — 仁さん Supabase Studio 操作待ち） |
+| `cowork-to-claude-code.md` | 0（[APPLIED] 2 件: §6.1 small scale 確定 / pytest 282 passed → archive 移動済） |
 | `claude-code-to-cowork.md` | 0（Plan review 修正通知 [RESOLVED] 化済） |
 | `lesson-candidates.md` | 2（sessions.py: 空 pairing 時の status 遷移バグ / `List[dict]` 型安全性欠落 — Phase 2 着手前確認推奨） |
 | `drafts/` | 24（FE レビュー — Critical 7 / High 8 / Medium 7 / Low+ADR 2、`cowork-to-claude-code.md` 昇格待ち） |
@@ -33,9 +33,10 @@
 
 1. ✅ **Case A/B 判断 → ADR-0001 Case B Clerk 採用**（2026-05-08 PO 確定）
 2. ✅ **§6.1 Cowork bash 実施分**（grep / 既存 RLS / supabase 利用カウント / race condition test 確認）
-3. 🔵 **§6.1 PO データ計測**（Storage / DB / ユーザー数 / MAU、`cowork-to-claude-code.md` [OPEN] 参照） ← **今ここ**
-4. **Phase 2-A の [OPEN] 起票** → SQLAlchemy + asyncpg 導入
-5. **Phase 2-B 〜 2-E** → 認可 / Storage / Auth (Clerk) / 統合テスト
+3. ✅ **§6.1 small scale 確定**（PO 自己申告: メンバー ≤10 / 学習者 ≤20）
+4. ✅ **pytest 282 passed 0.80s**（Claude Code 並走で完了、blocker check クリア）
+5. 🔵 **Phase 2-A の [OPEN] 起票** ← **今ここ**（SQLAlchemy + asyncpg 導入）
+6. **Phase 2-B 〜 2-E** → 認可 / Storage / Auth (Clerk) / 統合テスト
 
 ## 既知の課題（Phase 2 で扱う）
 
@@ -69,6 +70,9 @@
 - 2026-05-08: **ADR-0001 起票** — Case B Clerk 移行採用（PO 仁さん確定、多言語ログイン UI 優先度=高 / 後続プロジェクト一貫性が決定打）
 - 2026-05-08: §6.1 Cowork bash 実態調査完了 — frontend 直叩き 10 件 / backend `.from_()` 103 件 / supabase.auth 6 箇所 / RLS 41 件、計画書の 67 件想定が過小評価だったことが判明
 - 2026-05-08: PO データ計測 [OPEN] 1 件起票 — Supabase Studio で SQL 4 つ + Storage / DB ダッシュボード確認
+- 2026-05-08: §6.1 [APPLIED] — PO 自己申告で **small scale 確定**（メンバー ≤10 / 学習者 ≤20）、計画書下限値見積もりで進行
+- 2026-05-08: pytest blocker check [APPLIED] — Claude Code 並走で **282 passed in 0.80s** 確認、Phase 2-A 着手可能状態へ
+- 2026-05-08: handoff 整理 — [APPLIED] 2 件を `_archive/2026-05-08.md` に追加移動
 
 ## 履歴（Phase 推移）
 

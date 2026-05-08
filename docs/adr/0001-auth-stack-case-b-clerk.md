@@ -12,7 +12,9 @@
 
 にほんごひろばは Phase 1 で **Supabase Auth + supabase-py** で認証層を実装済み（HS256 JWT、`@supabase/supabase-js` での frontend ログイン、`services/invitation.py` での招待フロー）。Phase 2 で **Supabase → Neon 移行**を進めるにあたり、認証スタックを移行するか継続するかの判断が必要になった（移行計画書 §2.4 で 2 案を比較）。
 
-### 現状の数値（2026-05-08 Cowork 実態調査）
+### 現状の数値（2026-05-08 Cowork 実態調査 + PO 自己申告）
+
+**コードベース実測（Cowork bash で grep / count 取得）:**
 
 | 観点 | 値 |
 |---|---|
@@ -22,6 +24,17 @@
 | frontend `supabase.auth.*` 利用 | **6 箇所**（apiClient / Header / AdminLayout / Login / LearnerMyPage） |
 | 既存 RLS ポリシー | **41 件**（`supabase/migrations/003_rls_policies.sql`） |
 | 既存テスト | **282 関数**（うち `services/invitation.py` の race condition test = `test_invite_learner_cleans_up_existing_user` 含む） |
+
+**運用規模（PO 自己申告 small scale、2026-05-08 Cowork セッション）:**
+
+| 観点 | 値 | 影響 |
+|---|---|---|
+| メンバー（admin / staff / volunteer） | **10 名以下** | 再招待は 1 日で完結、顧客サポート体制不要 |
+| 学習者（招待済み + active） | **20 名以下** | 同上、合計 30 通以下のメール送信で済む |
+| DB 容量 | small（< 1GB 想定） | Phase 2-A メンテ時間 30 分で十分 |
+| Storage バケット容量 | small（< 10GB 想定） | Phase 2-C は **rclone 一発カットオーバー**（段階運用スキップ可） |
+| 月次 MAU | small（< 50K 確実） | Clerk **Hobby 永続**で課金不要 |
+| **Phase 2 全体 token 見積もり** | **下限値 290K 寄り** | 計画書 §5.1 の Case B レンジ（290K-460K）の下限側 |
 
 ### 後続プロジェクトの実例
 
