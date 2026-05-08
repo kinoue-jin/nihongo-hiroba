@@ -1022,3 +1022,85 @@ test_phase.jsonの verify を "in_progress" に更新してから実行。
 ✅ 最終確認: ビルド成功・型エラーなし・カバレッジX%
 ```
 
+---
+
+## 【2026-05-08 追記】shared-knowledge / handoff / Cowork 接続
+
+> 上記の Phase 1（Agent Teams 並列実装）完了後、フトコロ・golf-compe で進化した
+> 運用ルール（`_shared-knowledge` ナレッジベース + `.handoff/` システム + Cowork セッション）
+> を本プロジェクトに接続。**既存の Phase 1 指示書（このファイル冒頭〜上記）はそのまま保持**し、
+> 以降の追加作業（Phase 2: Supabase → Neon 移行 等）はこの新運用に従う。
+
+### プロジェクト現状の確認順序（Phase 2 以降）
+
+1. **`.handoff/CURRENT.md`** — 現フェーズ・Open 項目・最近の更新（authoritative source）
+2. **`.handoff/cowork-to-claude-code.md`** — `[OPEN]` の作業依頼を順次実施
+3. **git log** — 直近の変更履歴
+
+不一致発生時は `.handoff/CURRENT.md` を正とする。
+
+### 自動読み込みルール（`.claude/rules/`）
+
+`_shared-knowledge/rules/` から symlink 接続済み。Claude Code 起動時に自動読み込みされる:
+
+| ファイル | 内容 | 接続元 |
+|---|---|---|
+| `api-conventions.md` | FastAPI REST 規約 | shared(symlink) |
+| `code-review.md` | Plan review / レビュー Agent 使い分け | shared(symlink) |
+| `code-style.md` | TS/Python コーディング規約 | shared(symlink) |
+| `handoff-apply.md` | `[APPLIED]` 反映時の自動コミットルール | shared(symlink) |
+| `i18n.md` | 多言語対応（ja / zh / en） | shared(symlink) |
+| `testing.md` | テスト戦略 | shared(symlink) |
+
+shared 側の改善は **自動で** 全プロジェクトに反映される。プロジェクト固有ルールは
+local に実ファイルで配置すること（symlink ではなく `.claude/rules/` 直下に新規作成）。
+
+### Cowork セッション運用
+
+- 直下の `CLAUDE-cowork.md`（`_shared-knowledge/cowork/CLAUDE-cowork.md` から symlink）
+- `.handoff/scripts/cowork-git.sh` (shared symlink) — Cowork サンドボックス用 git ラッパー
+- `.handoff/scripts/CLAUDE.md` (shared symlink) — スクリプト運用ガイド
+
+### handoff フロー早見表
+
+| 状況 | 書く場所 | ステータス |
+|---|---|---|
+| Cowork が新規作業を依頼 | `cowork-to-claude-code.md` | `[OPEN]` |
+| Claude Code が実装完了 | 同 | `[OPEN]` → `[APPLIED]` |
+| Claude Code が実装中に質問 | `claude-code-to-cowork.md` | `[OPEN]` (フォーマット A) |
+| Claude Code が Plan review | 同 | `[OPEN]` (フォーマット B) |
+| Claude Code が教訓発見 | `lesson-candidates.md` | `[CANDIDATE]` |
+
+詳細は [`.handoff/CLAUDE.md`](.handoff/CLAUDE.md) 参照。
+
+### 参照ドキュメント（`_shared-knowledge/`）
+
+- `_shared-knowledge/CLAUDE.md` — 横断ナレッジの索引
+- `_shared-knowledge/knowledge-base/` — 汎用実装教訓（§番号体系で `knowledge-base/CLAUDE.md` の対応表を見る）
+- `_shared-knowledge/knowledge-base-nihongo-hiroba.md` — 本プロジェクト先行知見（Supabase 罠 / RLS 循環 / python-magic Railway 等）
+- `_shared-knowledge/golf-compe-handoff.md` / `futokoro-handoff.md` — 後続プロジェクトの引き継ぎ（参考）
+
+### 重要ファイル（変更時要注意）
+
+<important>
+- BE: `app/dependencies.py`, `app/main.py`, `app/middleware/`, RLS / 認可周り
+- BE: 全 routers（auth.py / news.py / events.py / sessions.py / learners.py / members.py / media.py）
+- FE: `src/lib/apiClient.ts`, `src/router.tsx`, `src/mocks/handlers.ts`
+- DB: `supabase/migrations/` 全体（Phase 2 で Neon 移行検討中）
+
+これらを変更する場合は影響範囲を慎重に評価し、テストを充実させること。
+変更前に PO（仁さん）に報告することが望ましい。
+</important>
+
+### ソースファイル規約（業界標準）
+
+| 種別 | 上限 |
+|---|---|
+| 実装コード（.tsx / .ts / .py） | 500 行 |
+| モック（src/mocks/） | 500 行 |
+| CSS / styles | 300 行 |
+| テスト（tests/ / __tests__/） | 500 行 |
+
+上限超のファイルは Phase 単位で分割。分割パターンは
+`_shared-knowledge/knowledge-base/13-split-patterns.md` を参照。
+

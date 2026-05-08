@@ -1,0 +1,1 @@
+../../../_shared-knowledge/rules/testing.md

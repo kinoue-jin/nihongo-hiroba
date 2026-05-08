@@ -1,0 +1,1 @@
+../../../_shared-knowledge/cowork/scripts/cowork-git.sh
