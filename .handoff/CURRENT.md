@@ -5,7 +5,7 @@
 >
 > 更新タイミング: ステップ切替時 / 重要な決定時 / 毎日の作業開始時（任意）
 
-**Last updated:** 2026-05-08 by Cowork session（Phase 0 開始 — `_shared-knowledge` / `.handoff` / Cowork 運用への接続を完了。Phase 2: Supabase → Neon 移行の調査タスク [OPEN] 1 件起票）
+**Last updated:** 2026-05-08 by Cowork session（Phase 0 完了 — `_shared-knowledge` / `.handoff` / Cowork 運用への接続を commit。Phase 2 調査 [OPEN] + pre-existing 整理 [OPEN] 2 件 = 計 3 件起票）
 
 ---
 
@@ -23,7 +23,7 @@
 
 | ファイル | OPEN 数 |
 |---------|---------|
-| `cowork-to-claude-code.md` | 1（Phase 2 調査: Supabase → Neon 移行計画策定） |
+| `cowork-to-claude-code.md` | 3（Phase 2 調査: Neon 移行計画 / __pycache__ 1841 件追跡解除 / 未 commit backend 実コード review） |
 | `claude-code-to-cowork.md` | 0 |
 | `lesson-candidates.md` | 0 |
 
@@ -52,6 +52,7 @@
 - 2026-05-08: `.gitignore` に Cowork 用エントリ（`.cowork-trash/` / `.handoff/.iterm-logs` 等）を追記
 - 2026-05-08: 既存 `CLAUDE.md` 末尾に「shared-knowledge / handoff / Cowork 接続」セクションを追記（既存 Phase 1 指示書は保護）
 - 2026-05-08: `cowork-to-claude-code.md` に Phase 2 調査用 [OPEN] 1 件を起票
+- 2026-05-08: pre-existing 整理 [OPEN] 2 件追加起票（__pycache__ 1841 件追跡解除 / 7 週間前以降の未 commit backend 実コード変更 4 ファイルの review）
 
 ## 履歴（Phase 推移）
 
