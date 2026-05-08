@@ -47,3 +47,21 @@ backend 実コード review（commit `120d82af`）で `routers/sessions.py` の 
 - **openapi-typescript の生成物を frontend 側で使うなら**、`dict` は `Record<string, unknown>` になり実質型なし → frontend 側でも any 化されて二重で型システムが効かない
 **Applied to:** 未修正、Phase 2 schema 整理時に同時対応推奨
 **Promote to §x.y?:** YES（候補: §15 Agent Teams schema-first design / §16 Pydantic schema の `dict` 警戒）
+
+---
+
+## [CANDIDATE] 2026-05-08: Cowork サンドボックスから外部 HTTPS（Supabase 等）への直接アクセスは不可
+**Severity:** Minor（運用設計の落とし穴）
+**What happened:**
+ADR-0001 の §6.1 PO データ計測 [OPEN] を起票後、「仁さんの手間を減らすため Cowork 内で curl / supabase REST 経由で計測してしまえないか」を試みた。`backend/.env.local` から `SUPABASE_URL` / `SUPABASE_ANON_KEY` は読めたが、`curl` で Supabase の REST endpoint へのアクセスはすべて **HTTP 000（接続失敗）**。DNS は解決可能だったが TLS handshake / connect の段階で完全に弾かれた。
+**Root cause:**
+- Cowork サンドボックス bash の network policy は **allowlisted domain のみ HTTPS 許可**（CLAUDE Agent SDK / Anthropic 系のみが allowlist 入りしている想定）
+- Supabase / Neon / Vercel / その他外部 SaaS は domain allowlist に含まれない
+- 環境変数として鍵は読めても、 outbound 通信が遮断されているため SaaS 計測には使えない
+**Generalizable lesson:**
+- **Cowork セッションは「コード生成 / ファイル操作 / 静的解析 / git」の sandbox**。外部 SaaS の動的計測（DB count / Storage size / API rate-limit テスト等）には使えない
+- 「PO 依頼 [OPEN] vs Cowork 内自動化」の判断は、**最初に外部到達性を確認する** 手順を含めるべき。`curl --max-time 5 <SaaS endpoint>` で HTTP code を確認するワンライナーを `.handoff/CLAUDE.md` か `_shared-knowledge/cowork/CLAUDE-cowork.md` に明記候補
+- SaaS 計測系の handoff [OPEN] は最初から「PO 実施が前提」で起票するのが運用上効率的（Cowork で試行錯誤する時間を削れる）
+- 同様の制約は Neon / Cloudflare R2 / Clerk admin API 等にも当てはまる可能性高 → Phase 2 実装時にも遭遇予定
+**Applied to:** ADR-0001 / `cowork-to-claude-code.md` の §6.1 [OPEN] は仁さん実施の方針で維持
+**Promote to §x.y?:** YES（候補: `_shared-knowledge/knowledge-base/12-cowork-ops.md §14.5` Cowork 制約の補強 / または同 §14 末尾に新節）
