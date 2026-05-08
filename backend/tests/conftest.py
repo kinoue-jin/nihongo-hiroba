@@ -117,23 +117,49 @@ def mock_learner_user():
     )
 
 
+_ROUTER_MODULES = (
+    "admin", "auth", "events", "learners", "master",
+    "media", "members", "news", "sessions", "stats",
+)
+
+
 @pytest.fixture(scope="module")
 def client():
-    """Create test client with mocked Supabase clients"""
-    # Patch before importing app
-    with patch("supabase.create_client") as mock_create:
+    """Create test client with mocked Supabase clients.
+
+    Patches both app.dependencies AND each router's locally-imported
+    get_supabase_admin_client / get_supabase_client references, since
+    `from app.dependencies import X` creates a local binding that isn't
+    affected by patching `app.dependencies.X`.
+    """
+    from contextlib import ExitStack
+    with ExitStack() as stack:
+        mock_create = stack.enter_context(patch("supabase.create_client"))
+
         def create_client_side_effect(url, key):
             if "service_role" in str(key) or "admin" in str(key):
                 return _mock_supabase_admin_instance
             return _mock_supabase_instance
         mock_create.side_effect = create_client_side_effect
 
-        # Also patch get_supabase functions
-        with patch("app.dependencies.get_supabase_client", return_value=_mock_supabase_instance):
-            with patch("app.dependencies.get_supabase_admin_client", return_value=_mock_supabase_admin_instance):
-                from app.main import app
-                with TestClient(app) as test_client:
-                    yield test_client
+        # Import app first so all router modules are loaded
+        from app.main import app
+
+        # Patch dependencies module
+        stack.enter_context(patch("app.dependencies.get_supabase_client",
+                                   return_value=_mock_supabase_instance))
+        stack.enter_context(patch("app.dependencies.get_supabase_admin_client",
+                                   return_value=_mock_supabase_admin_instance))
+
+        # Patch each router's local import
+        for mod in _ROUTER_MODULES:
+            stack.enter_context(patch(f"app.routers.{mod}.get_supabase_client",
+                                      return_value=_mock_supabase_instance, create=True))
+            stack.enter_context(patch(f"app.routers.{mod}.get_supabase_admin_client",
+                                      return_value=_mock_supabase_admin_instance, create=True))
+
+        with TestClient(app) as test_client:
+            yield test_client
 
 
 def create_test_token(user_id: str, role: str, expired: bool = False) -> str:

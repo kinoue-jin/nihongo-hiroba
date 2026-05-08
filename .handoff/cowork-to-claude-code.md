@@ -105,7 +105,7 @@
 
 ---
 
-## [OPEN] 2026-05-08: __pycache__ 1841 ファイルを git 追跡解除
+## [APPLIED] 2026-05-08: __pycache__ 1841 ファイルを git 追跡解除
 **Task type:** code
 **Review required:** no
 **Pre-implementation review:** no
@@ -153,11 +153,17 @@ git commit -m "chore: __pycache__ を git 追跡解除（1841 ファイル）"
   `find . -name __pycache__ -type d -exec rm -rf {} +` を別途
 - **CI 設定の確認**: もし CI で pyc を artifact として扱っているなら影響あり（通常はないはず）
 
-**Status:** OPEN
+**Status:** APPLIED
+
+**Applied:**
+- 実行手順: `git ls-files '*__pycache__*' | xargs git rm --cached` で 1841 ファイルを一括削除
+- コミット: `9fc4b434` — `chore: __pycache__ を git 追跡解除（1841 ファイル）`
+- 検証: 実行後 `git ls-files '*__pycache__*' | wc -l` → 0 件確認
+- 影響: ローカル .pyc ファイル自体は残存（実行時に自動再生成）/ リモート pull 後も同様
 
 ---
 
-## [OPEN] 2026-05-08: 未 commit の backend 実コード変更を review し、commit / revert を判断
+## [APPLIED] 2026-05-08: 未 commit の backend 実コード変更を review し、commit / revert を判断
 **Task type:** code
 **Review required:** yes
 **Pre-implementation review:** no
@@ -210,4 +216,16 @@ Claude Code 側で各 diff を読み、以下のいずれかを判断:
 - **revert 判断は慎重に**: 7 週間前以降の作業内容で、PO が忘れているだけで価値ある
   修正の可能性もある。まずは内容を読み込んでから判断
 
-**Status:** OPEN
+**Status:** APPLIED
+
+**Applied:**
+- **全 4 ファイルを COMMIT 判断**（revert なし）
+- 判断根拠:
+  - `learners.py`: `delete_learner` を `require_staff` → `require_admin` に修正。RLS `learner_staff_delete` ポリシーが admin 限定のため正当な bugfix
+  - `members.py`: create/update/delete member を `require_staff` → `require_admin` に修正。RLS `member_admin_write FOR ALL` が admin 限定のため同様に正当
+  - `sessions.py`: 501 STUB を Agent E の `app.services.pairing.generate_pairings` に接続する実装に差し替え。サービスは実装済み。軽微な懸念（冗長バリデーション / 空 pairing 時の status 更新エッジケース）は記録するが現状 commit 範囲
+  - `conftest.py`: ルーターのローカルバインド（`from app.dependencies import X`）が `patch("app.dependencies.X")` で更新されない問題を修正。ExitStack で各ルーターモジュールも個別 patch する正当な改善
+- **テスト**: `pytest tests/ --tb=short -q` → **282 passed**（全 Green）
+- 軽微な懸念（Phase 2 前に確認推奨）:
+  - `sessions.py`: service が内部検証失敗で空 pairings を返しても session_status が "pairing" に更新されるエッジケース
+  - `sessions.py`: `GeneratePairingsResponse.pairings` が `List[dict]` で型安全でない

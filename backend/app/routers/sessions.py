@@ -256,21 +256,68 @@ async def create_learning_record(
     return response.data[0]
 
 
-# Generate pairings STUB - actual implementation is Agent E's job
-@router.post("/{session_id}/generate-pairings", status_code=status.HTTP_501_NOT_IMPLEMENTED)
+class GeneratePairingsResponse(BaseModel):
+    pairings: List[dict]
+    waitlisted_members: List[dict]
+    unpaired_learners: List[str]
+
+
+@router.post("/{session_id}/generate-pairings", response_model=GeneratePairingsResponse)
 @limiter.limit(GENERAL_RATE_LIMIT)
-async def generate_pairings_stub(
+async def generate_pairings_endpoint(
     request: Request,
     session_id: UUID,
     user: TokenPayload = Depends(require_staff),
 ):
     """
-    Generate pairings for a session.
+    Generate automatic pairings for a session.
 
-    STUB - This endpoint is not yet implemented.
-    Actual pairing logic will be implemented by Agent E.
+    Delegates to app.services.pairing.generate_pairings.
+    Requires session_status = 'open'. Returns pairings, waitlisted members
+    (excess members without a learner), and unpaired learners if any.
     """
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Pairing generation not yet implemented. This will be handled by Agent E.",
+    from app.services.pairing import generate_pairings as run_pairing
+
+    supabase = get_supabase_admin_client()
+
+    session_row = supabase.from_("schedule_sessions").select("*").eq("id", str(session_id)).execute()
+    if not session_row.data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Session not found",
+        )
+
+    session = session_row.data[0]
+    if session.get("is_cancelled"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot generate pairings for a cancelled session",
+        )
+    if session.get("session_status") != "open":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Session status must be 'open' to generate pairings (current: {session.get('session_status')})",
+        )
+
+    result = run_pairing(session_id=session_id, supabase_client=supabase)
+
+    supabase.from_("schedule_sessions").update({"session_status": "pairing"}).eq("id", str(session_id)).execute()
+
+    return GeneratePairingsResponse(
+        pairings=[
+            {
+                "session_id": str(p["session_id"]),
+                "member_id": str(p["member_id"]),
+                "learner_id": str(p["learner_id"]),
+                "pairing_type": p["pairing_type"],
+                "auto_score": float(p["auto_score"]),
+                "status": p["status"],
+            }
+            for p in result.pairings
+        ],
+        waitlisted_members=[
+            {"member_id": str(w.member_id), "reason": w.reason}
+            for w in result.waitlisted_members
+        ],
+        unpaired_learners=[str(lid) for lid in result.unpaired_learners],
     )

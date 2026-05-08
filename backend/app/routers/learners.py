@@ -214,9 +214,9 @@ async def update_learner_admin(
 async def delete_learner(
     request: Request,
     learner_id: UUID,
-    user: TokenPayload = Depends(require_staff),
+    user: TokenPayload = Depends(require_admin),
 ):
-    """Delete a learner (staff only)"""
+    """Delete a learner (admin only - matches RLS policy)"""
     supabase = get_supabase_admin_client()
 
     response = supabase.from_("learners").delete().eq("id", str(learner_id)).execute()

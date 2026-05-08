@@ -9,6 +9,7 @@ from app.dependencies import (
     get_supabase_client,
     get_supabase_admin_client,
     require_staff,
+    require_admin,
     TokenPayload,
 )
 from app.schemas.member import Member, MemberCreate, MemberUpdate, PublicMemberResponse
@@ -100,9 +101,9 @@ async def get_member_internal(
 async def create_member(
     request: Request,
     member_data: MemberCreate,
-    user: TokenPayload = Depends(require_staff),
+    user: TokenPayload = Depends(require_admin),
 ):
-    """Create a new member (staff only)"""
+    """Create a new member (admin only - matches RLS policy)"""
     supabase = get_supabase_admin_client()
 
     member_dict = member_data.model_dump()
@@ -126,9 +127,9 @@ async def update_member(
     request: Request,
     member_id: UUID,
     member_data: MemberUpdate,
-    user: TokenPayload = Depends(require_staff),
+    user: TokenPayload = Depends(require_admin),
 ):
-    """Update a member (staff only)"""
+    """Update a member (admin only - matches RLS policy)"""
     supabase = get_supabase_admin_client()
 
     update_dict = {k: v for k, v in member_data.model_dump().items() if v is not None}
@@ -154,9 +155,9 @@ async def update_member(
 async def delete_member(
     request: Request,
     member_id: UUID,
-    user: TokenPayload = Depends(require_staff),
+    user: TokenPayload = Depends(require_admin),
 ):
-    """Delete a member (staff only)"""
+    """Delete a member (admin only - matches RLS policy)"""
     supabase = get_supabase_admin_client()
 
     response = supabase.from_("members").delete().eq("id", str(member_id)).execute()
