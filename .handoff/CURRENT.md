@@ -5,7 +5,7 @@
 >
 > 更新タイミング: ステップ切替時 / 重要な決定時 / 毎日の作業開始時（任意）
 
-**Last updated:** 2026-05-08 by Cowork session（Phase 0 完了 — `_shared-knowledge` / `.handoff` / Cowork 運用への接続を commit。Phase 2 調査 [OPEN] + pre-existing 整理 [OPEN] 2 件 = 計 3 件起票）
+**Last updated:** 2026-05-08 by Cowork session（Phase 0 完了。FE レビュー 54 項目を `drafts/` に 24 件の起票テンプレートとして整形。`drafts/` → `cowork-to-claude-code.md [OPEN]` への昇格は今後段階的に実施）
 
 ---
 
@@ -26,6 +26,7 @@
 | `cowork-to-claude-code.md` | 3（Phase 2 調査: Neon 移行計画 / __pycache__ 1841 件追跡解除 / 未 commit backend 実コード review） |
 | `claude-code-to-cowork.md` | 0 |
 | `lesson-candidates.md` | 0 |
+| `drafts/` | 24（FE レビュー — Critical 7 / High 8 / Medium 7 / Low+ADR 2、cowork-to-claude-code.md への昇格待ち） |
 
 ## 次のマイルストーン
 
@@ -53,6 +54,7 @@
 - 2026-05-08: 既存 `CLAUDE.md` 末尾に「shared-knowledge / handoff / Cowork 接続」セクションを追記（既存 Phase 1 指示書は保護）
 - 2026-05-08: `cowork-to-claude-code.md` に Phase 2 調査用 [OPEN] 1 件を起票
 - 2026-05-08: pre-existing 整理 [OPEN] 2 件追加起票（__pycache__ 1841 件追跡解除 / 7 週間前以降の未 commit backend 実コード変更 4 ファイルの review）
+- 2026-05-08: FE レビュー（Cowork セッション）54 項目を `.handoff/drafts/` に 24 件の起票テンプレートとして整形。 Critical 7 / High 8 / Medium 7 / Low+ADR 2 構成。golf-compe drafts/ パターン踏襲（fe-c1-msw-double-init.md など）
 
 ## 履歴（Phase 推移）
 
