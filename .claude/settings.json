@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "PreToolUse": [{
+      "matcher": "AskUserQuestion",
+      "hooks": [{
+        "type": "command",
+        "command": "if [ \"$HANDOFF_IMPLEMENTING\" = \"1\" ]; then echo \"handoff 実装セッションでは AskUserQuestion を使用禁止(PO 決定 2026-07-03)。BLOCKED 手順で終了すること: (1) 質問を .handoff/report.md(旧 claude-code-to-cowork.md)にフォーマット A で起票 (2) 当該エントリーを [BLOCKED] に書き換え(見出しと **Status:** の両方) (3) エントリータイトルと (handoff: BLOCKED) を含む message で commit して終了。PO 回答後に [OPEN] へ戻すと自動再開される。\" >&2; exit 2; fi"
+      }]
+    }]
+  }
+}
