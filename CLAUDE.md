@@ -1051,6 +1051,7 @@ test_phase.jsonの verify を "in_progress" に更新してから実行。
 | `handoff-apply.md` | `[APPLIED]` 反映時の自動コミットルール | shared(symlink) |
 | `i18n.md` | 多言語対応（ja / zh / en） | shared(symlink) |
 | `testing.md` | テスト戦略 | shared(symlink) |
+| `knowledge-reference-protocol.md` | 知識参照順 L0→L2→L3・wiki複製禁止 | shared(symlink) |
 
 shared 側の改善は **自動で** 全プロジェクトに反映される。プロジェクト固有ルールは
 local に実ファイルで配置すること（symlink ではなく `.claude/rules/` 直下に新規作成）。
