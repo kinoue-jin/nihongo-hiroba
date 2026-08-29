@@ -22,7 +22,7 @@
 **判断基準:**
 - **Task type**: code（.ts/.tsx/.py/.css/.sql）/ docs（.md）/ mixed
 - **Review required**: yes（code または mixed の code 部分）/ no（docs・機械的置換）/ partial（code 部分のみ）
-- **Pre-implementation review**: yes（30K+ tokens または `<important>` ファイル）/ no（軽微）
+- **Pre-implementation review**: yes（**重要 tier**〔判定条件の SSOT = `~/Projects/_shared-knowledge/rules/_detail/impl-model-tiers.md` §重要判定。⚠ 本リポの起票フォーマットは `**Tier:**` / `**Blast radius:**` 欄を持たないので、該当したら `**Context:**` に「重要 tier（理由）」と 1 行書く〕/ **`Estimated tokens` が起票フォーマットの上位 2 帯**〔本リポは帯を列挙しないので、起票者が上位 2 帯と判断し `**Context:**` に理由を 1 行書いたとき〕）/ no（軽微）
 
 詳細な agent 使い分けは [`.claude/rules/code-review.md`](../.claude/rules/code-review.md) 参照。
 
