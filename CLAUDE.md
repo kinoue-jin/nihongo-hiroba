@@ -1057,9 +1057,7 @@ local に実ファイルで配置すること（symlink ではなく `.claude/ru
 
 ### Cowork セッション運用
 
-- 直下の `CLAUDE-cowork.md`（`_shared-knowledge/cowork/CLAUDE-cowork.md` から symlink）
-- `.handoff/scripts/cowork-git.sh` (shared symlink) — Cowork サンドボックス用 git ラッパー
-- `.handoff/scripts/CLAUDE.md` (shared symlink) — スクリプト運用ガイド
+（2026-09-06 に廃止。対話セッションは Claude Code で行い、`.handoff/` の運用は `_shared-knowledge/rules/handoff-apply.md` が SSOT）
 
 ### handoff フロー早見表
 

@@ -55,9 +55,6 @@ supabase/.temp/
 .claude/worktrees/
 .agent_progress/
 
-# Cowork サンドボックス用 git ラッパー(.handoff/scripts/cowork-git.sh)が
-# 生成する orphan lock のゴミ捨て場。詳細は CLAUDE-cowork.md §3 参照
-.cowork-trash/
 
 # handoff-orchestrator runtime
 .handoff/.iterm-logs
