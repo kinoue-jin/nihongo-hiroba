@@ -48,5 +48,5 @@
 
 - 自動コミット: `.claude/rules/handoff-apply.md`
 - レビュー Agent 使い分け: `.claude/rules/code-review.md`
-- Cowork 運用: ルートの `CLAUDE-cowork.md`
+- 対話セッションの運用: `_shared-knowledge/rules/handoff-apply.md`（常時集合）。Cowork 形態は 2026-09-06 に廃止
 - 詳細運用教訓: `_shared-knowledge/knowledge-base/12-cowork-ops.md`
