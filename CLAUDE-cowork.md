@@ -1,1 +1,0 @@
-../_shared-knowledge/cowork/CLAUDE-cowork.md
