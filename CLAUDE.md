@@ -1041,12 +1041,11 @@ test_phase.jsonの verify を "in_progress" に更新してから実行。
 
 ### 自動読み込みルール（`.claude/rules/`）
 
-`_shared-knowledge/rules/` から symlink 接続済み。Claude Code 起動時に自動読み込みされる:
+`_shared-knowledge/rules/` から symlink 接続済み。Claude Code 起動時に自動読み込みされる（⚠ 外部 symlink は `~/.claude.json` の承認フラグが true のときだけ読まれる。接続は `_shared-knowledge/harness/setup-project.sh` が行う。レビュー体制の規範〔旧 code-review.md〕は 2026-09-06 に tiers / pre-impl-review / post-impl-review / test-author-independence へ分割され、`.claude/context-manifest.json` 経由で場面別に配達される）:
 
 | ファイル | 内容 | 接続元 |
 |---|---|---|
 | `api-conventions.md` | FastAPI REST 規約 | shared(symlink) |
-| `code-review.md` | Plan review / レビュー Agent 使い分け | shared(symlink) |
 | `code-style.md` | TS/Python コーディング規約 | shared(symlink) |
 | `handoff-apply.md` | `[APPLIED]` 反映時の自動コミットルール | shared(symlink) |
 | `i18n.md` | 多言語対応（ja / zh / en） | shared(symlink) |
