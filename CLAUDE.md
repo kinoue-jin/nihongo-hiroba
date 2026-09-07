@@ -1081,6 +1081,8 @@ local に実ファイルで配置すること（symlink ではなく `.claude/ru
 ### 重要ファイル（変更時要注意）
 
 <important>
+🔴 本ブロックは読み手への強調用途であり、**tier 判定は本ブロックを見ない**（判定 (a) の機械可読な入力は `.handoff/important-paths.md` の 1 本だけ。→ ~/Projects/_shared-knowledge/rules/tiers.md#important-paths-ledger）。⚠ 両者の drift は無監視なので、重要ファイルを足すときは台帳も同じ commit で直すこと。
+
 - BE: `app/dependencies.py`, `app/main.py`, `app/middleware/`, RLS / 認可周り
 - BE: 全 routers（auth.py / news.py / events.py / sessions.py / learners.py / members.py / media.py）
 - FE: `src/lib/apiClient.ts`, `src/router.tsx`, `src/mocks/handlers.ts`
