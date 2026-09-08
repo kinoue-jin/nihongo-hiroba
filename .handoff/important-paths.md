@@ -6,7 +6,7 @@
 ## paths
 
 - `.handoff/important-paths.md` — (ii)本台帳自身
-- `.handoff/scripts/**` — (ii)運用スクリプト置き場
+- `.handoff/scripts/tier-check.py` — (ii)tier 判定 (a) の判定器（shared への symlink）
 - `backend/app/main.py` — (iii)アプリ構成の根幹
 - `backend/app/dependencies.py` — (i)認可の依存注入
 - `backend/app/middleware/**` — (i)RLS / 認可のミドルウェア
