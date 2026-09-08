@@ -1081,15 +1081,10 @@ local に実ファイルで配置すること（symlink ではなく `.claude/ru
 ### 重要ファイル（変更時要注意）
 
 <important>
-🔴 本ブロックは読み手への強調用途であり、**tier 判定は本ブロックを見ない**（判定 (a) の機械可読な入力は `.handoff/important-paths.md` の 1 本だけ。→ ~/Projects/_shared-knowledge/rules/tiers.md#important-paths-ledger）。⚠ 両者の drift は無監視なので、重要ファイルを足すときは台帳も同じ commit で直すこと。
-
-- BE: `app/dependencies.py`, `app/main.py`, `app/middleware/`, RLS / 認可周り
-- BE: 全 routers（auth.py / news.py / events.py / sessions.py / learners.py / members.py / media.py）
-- FE: `src/lib/apiClient.ts`, `src/router.tsx`, `src/mocks/handlers.ts`
-- DB: `supabase/migrations/` 全体（Phase 2 で Neon 移行検討中）
-
-これらを変更する場合は影響範囲を慎重に評価し、テストを充実させること。
-変更前に PO（仁さん）に報告することが望ましい。
+🔴 **本ブロックはパスを列挙しない。** tier 判定 (a) の機械可読な入力は台帳 1 本だけで、ここへ二重に列挙するとその 1 本と drift するため（列挙側の drift は機械では見張れない）。
+[台帳の所在・行書式・登録基準・棚卸し] → ~/Projects/_shared-knowledge/rules/tiers.md#important-paths-ledger
+変更に注意すべきファイルの一覧は、本リポの台帳 `.handoff/important-paths.md` が持つ。
+台帳に当たるファイルを変更するときは影響範囲を慎重に評価しテストを充実させること。**変更前に PO（仁さん）へ報告する。**
 </important>
 
 ### ソースファイル規約（業界標準）
