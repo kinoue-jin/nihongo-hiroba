@@ -50,7 +50,7 @@
 ## 既知の課題（別タスク）
 
 - **FE レビュー 24 件 drafts/**: 順次 `cowork-to-claude-code.md` に昇格。最優先 `fe-c6-top-korean-leak.md`（Top.tsx 韓国語混入）
-- **巨大ファイル監査未実施**: `_shared-knowledge/knowledge-base/13-split-patterns.md` の業界標準（実装 500 行 / テスト 500 行 / CSS 300 行）に基づくリポジトリ全体監査。Phase 2 完了後に実施候補
+- **巨大ファイル監査未実施**: 業界標準（実装 500 行 / テスト 500 行 / CSS 300 行・`CLAUDE.md` のソースファイル規約）に基づくリポジトリ全体監査。Phase 2 完了後に実施候補
 - **`backend/venv/bin/*` 追跡**: 1841 件の `__pycache__` と同パターンで venv が追跡されている。`.gitignore` 追加 + `git rm --cached -r backend/venv/` の [OPEN] 起票候補
 
 ## 最近の更新（直近 7 日）

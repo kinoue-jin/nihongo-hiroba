@@ -1,1 +1,0 @@
-../../../_shared-knowledge/rules/handoff-apply.md

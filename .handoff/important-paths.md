@@ -1,12 +1,12 @@
 <!-- format: 1 -->
 # important paths — tier 判定 (a) の機械可読な入力
 
-> [台帳の所在・行書式・登録基準・棚卸し手順] → ~/Projects/_shared-knowledge/rules/important-paths-ledger.md#important-paths-ledger
+> 行書式 = `- \`<パス or glob>\` — (区分)理由`。区分 = (i) 認証・権限・金銭・DB migration・取り消せない操作を実装している面 / (ii) 判定・配達の仕組みそのもの / (iii) 全画面・全エンドポイントへ波及する共通基盤。
+> 2026-10-02 に shared から切り離した（台帳の書き方を持っていた shared の規則と、判定器 `.handoff/scripts/tier-check.py` への参照は外した）。
 
 ## paths
 
 - `.handoff/important-paths.md` — (ii)本台帳自身
-- `.handoff/scripts/tier-check.py` — (ii)tier 判定 (a) の判定器（shared への symlink）
 - `backend/app/main.py` — (iii)アプリ構成の根幹
 - `backend/app/dependencies.py` — (i)認可の依存注入
 - `backend/app/middleware/**` — (i)RLS / 認可のミドルウェア

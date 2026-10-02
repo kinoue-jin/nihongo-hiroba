@@ -42,7 +42,7 @@
 **Status:** OPEN | RESOLVED
 ```
 
-詳細は [`.claude/rules/code-review.md`](../.claude/rules/code-review.md) の「Pre-implementation plan review」セクション参照。
+詳細を持っていた `.claude/rules/code-review.md`（shared の規則）の「Pre-implementation plan review」セクションは 2026-09-06 に shared 側で分割・削除済み（2026-10-02 に shared から切り離したため無効）。
 
 ---
 

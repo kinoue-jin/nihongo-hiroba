@@ -13,7 +13,6 @@
 | `lesson-candidates.md` | 教訓候補 | Claude Code → Cowork |
 | `_archive/{YYYY-MM-DD}.md` | 解決済み記録（日単位） | （上記から移動） |
 | `drafts/` | 起票下書き | Cowork |
-| `scripts/` | 運用スクリプト | （shared から symlink） |
 
 ## 書く場所 早見表
 
@@ -46,7 +45,5 @@
 
 ## 詳細参照
 
-- 自動コミット: `.claude/rules/handoff-apply.md`
-- レビュー Agent 使い分け: `.claude/rules/code-review.md`
-- 対話セッションの運用: `_shared-knowledge/rules/handoff-apply.md`（常時集合）。Cowork 形態は 2026-09-06 に廃止
-- 詳細運用教訓: `_shared-knowledge/knowledge-base/12-cowork-ops.md`
+- 自動コミット・レビュー Agent 使い分け・対話セッションの運用: shared の規則（`handoff-apply.md`・`code-review.md`）が持っていた（2026-10-02 に shared から切り離したため無効）。Cowork 形態は 2026-09-06 に廃止
+- 本プロジェクトの先行知見: `docs/knowledge-base-nihongo-hiroba.md`（2026-10-02 に shared から移した）

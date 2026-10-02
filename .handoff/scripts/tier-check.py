@@ -1,1 +1,0 @@
-../../../_shared-knowledge/harness/tier-check.py

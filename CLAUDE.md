@@ -1027,9 +1027,12 @@ test_phase.jsonの verify を "in_progress" に更新してから実行。
 ## 【2026-05-08 追記】shared-knowledge / handoff / Cowork 接続
 
 > 上記の Phase 1（Agent Teams 並列実装）完了後、フトコロ・golf-compe で進化した
-> 運用ルール（`_shared-knowledge` ナレッジベース + `.handoff/` システム + Cowork セッション）
+> 運用ルール（横断ナレッジベース + `.handoff/` システム + Cowork セッション）
 > を本プロジェクトに接続。**既存の Phase 1 指示書（このファイル冒頭〜上記）はそのまま保持**し、
 > 以降の追加作業（Phase 2: Supabase → Neon 移行 等）はこの新運用に従う。
+>
+> **2026-10-02**: 横断ナレッジベース（shared）とのつながりをなくした（PO 指示）。規則は `.claude/rules/` の実ファイル（shared からの写し）、
+> 本プロジェクトの先行知見は `docs/knowledge-base-nihongo-hiroba.md` が持つ。shared の改善は自動では反映されない。
 
 ### プロジェクト現状の確認順序（Phase 2 以降）
 
@@ -1041,23 +1044,21 @@ test_phase.jsonの verify を "in_progress" に更新してから実行。
 
 ### 自動読み込みルール（`.claude/rules/`）
 
-`_shared-knowledge/rules/` から symlink 接続済み。Claude Code 起動時に自動読み込みされる（⚠ 外部 symlink は `~/.claude.json` の承認フラグが true のときだけ読まれる。接続は `_shared-knowledge/harness/setup-project.sh` が行う。レビュー体制の規範〔旧 code-review.md〕は 2026-09-06 に tiers / pre-impl-review / post-impl-review / test-author-independence へ分割され、`.claude/context-manifest.json` 経由で場面別に配達される）:
+`.claude/rules/` 直下の実ファイル。Claude Code 起動時に自動読み込みされる（2026-10-02 に shared への symlink を、その時点の shared の中身を写した実ファイルへ置き換えた。切れていた `handoff-apply.md` の symlink は消した）:
 
-| ファイル | 内容 | 接続元 |
+| ファイル | 内容 | 置き方 |
 |---|---|---|
-| `api-conventions.md` | FastAPI REST 規約 | shared(symlink) |
-| `code-style.md` | TS/Python コーディング規約 | shared(symlink) |
-| `handoff-apply.md` | `[APPLIED]` 反映時の自動コミットルール | shared(symlink) |
-| `i18n.md` | 多言語対応（ja / zh / en） | shared(symlink) |
-| `testing.md` | テスト戦略 | shared(symlink) |
-| `knowledge-reference-protocol.md` | 知識参照順 L0→L2→L3・wiki複製禁止 | shared(symlink) |
+| `api-conventions.md` | FastAPI REST 規約 | 実ファイル（2026-10-02 に shared から写した） |
+| `code-style.md` | TS/Python コーディング規約 | 実ファイル（同上） |
+| `i18n.md` | 多言語対応（ja / zh / en） | 実ファイル（同上） |
+| `testing.md` | テスト戦略 | 実ファイル（同上） |
+| `knowledge-reference-protocol.md` | 知識参照順 L0→L2→L3・wiki複製禁止 | 実ファイル（同上） |
 
-shared 側の改善は **自動で** 全プロジェクトに反映される。プロジェクト固有ルールは
-local に実ファイルで配置すること（symlink ではなく `.claude/rules/` 直下に新規作成）。
+規則はすべて本リポの実ファイルで、変えるときは本リポで直す。新しいルールも `.claude/rules/` 直下に実ファイルで作る。
 
 ### Cowork セッション運用
 
-（2026-09-06 に廃止。対話セッションは Claude Code で行い、`.handoff/` の運用は `_shared-knowledge/rules/handoff-apply.md` が SSOT）
+（2026-09-06 に廃止。対話セッションは Claude Code で行う。`.handoff/` の運用の SSOT だった shared の `rules/handoff-apply.md` は、2026-10-02 に shared から切り離したため無効）
 
 ### handoff フロー早見表
 
@@ -1071,18 +1072,17 @@ local に実ファイルで配置すること（symlink ではなく `.claude/ru
 
 詳細は [`.handoff/CLAUDE.md`](.handoff/CLAUDE.md) 参照。
 
-### 参照ドキュメント（`_shared-knowledge/`）
+### 参照ドキュメント
 
-- `_shared-knowledge/CLAUDE.md` — 横断ナレッジの索引
-- `_shared-knowledge/knowledge-base/` — 汎用実装教訓（§番号体系で `knowledge-base/CLAUDE.md` の対応表を見る）
-- `_shared-knowledge/knowledge-base-nihongo-hiroba.md` — 本プロジェクト先行知見（Supabase 罠 / RLS 循環 / python-magic Railway 等）
-- `_shared-knowledge/golf-compe-handoff.md` / `futokoro-handoff.md` — 後続プロジェクトの引き継ぎ（参考）
+- `docs/knowledge-base-nihongo-hiroba.md` — 本プロジェクト先行知見（Supabase 罠 / RLS 循環 / python-magic Railway 等。2026-10-02 に shared から移した）
+
+（横断ナレッジの索引・汎用実装教訓・後続プロジェクトの引き継ぎへの参照は、2026-10-02 に shared から切り離したため外した）
 
 ### 重要ファイル（変更時要注意）
 
 <important>
-🔴 **本ブロックはパスを列挙しない。** tier 判定 (a) の機械可読な入力は台帳 1 本だけで、ここへ二重に列挙するとその 1 本と drift するため（列挙側の drift は機械では見張れない）。
-[台帳の所在・行書式・登録基準・棚卸し] → ~/Projects/_shared-knowledge/rules/important-paths-ledger.md#important-paths-ledger
+🔴 **本ブロックはパスを列挙しない。** 一覧は台帳 1 本だけが持ち、ここへ二重に列挙するとその 1 本と drift するため（列挙側の drift は機械では見張れない）。
+[台帳の行書式・区分] → `.handoff/important-paths.md` の冒頭
 変更に注意すべきファイルの一覧は、本リポの台帳 `.handoff/important-paths.md` が持つ。
 台帳に当たるファイルを変更するときは影響範囲を慎重に評価しテストを充実させること。**変更前に PO（仁さん）へ報告する。**
 </important>
@@ -1096,6 +1096,5 @@ local に実ファイルで配置すること（symlink ではなく `.claude/ru
 | CSS / styles | 300 行 |
 | テスト（tests/ / __tests__/） | 500 行 |
 
-上限超のファイルは Phase 単位で分割。分割パターンは
-`_shared-knowledge/knowledge-base/13-split-patterns.md` を参照。
+上限超のファイルは Phase 単位で分割。
 

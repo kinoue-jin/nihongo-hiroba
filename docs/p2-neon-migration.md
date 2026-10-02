@@ -416,7 +416,7 @@
    DROP ROLE IF EXISTS authenticator;
    ```
 9. `routers/clerk_webhook.py` 新規作成:
-   - **svix の署名検証パターンはフトコロで実装済み**（`_shared-knowledge/knowledge-base-nihongo-hiroba.md §10` Clerk Webhook 署名検証参照）→ そのまま流用
+   - **svix の署名検証パターンはフトコロで実装済み**（`docs/knowledge-base-nihongo-hiroba.md` の「その他の教訓」の Clerk Webhook の署名検証を参照）→ そのまま流用
    - 同期対象イベント: `user.created` → 既存 `members` / `learners` レコードの旧 `supabase_user_id` IS NULL のレコードに `clerk_user_id` を埋める
    - `user.deleted` → 既存ロジックと同等（論理削除）
 10. **既存ユーザー移行スクリプト** `scripts/migrate_users_to_clerk.py`:
@@ -663,10 +663,8 @@ PO が本ドキュメントを承認したら、以下を確認してから Phas
 
 ## 7. 関連ドキュメント
 
-- `_shared-knowledge/knowledge-base-nihongo-hiroba.md` — 本プロジェクトの先行知見（§1 supabase-py 罠 / §2 RLS 循環 / §3 python-magic / §4 モックテスト限界）
-- `_shared-knowledge/futokoro-handoff.md` — フトコロ Neon スタックの全体像
-- `_shared-knowledge/golf-compe-handoff.md` — golf-compe の Phase 1+2 構成と認証
-- `_shared-knowledge/knowledge-base/` — 汎用実装教訓（索引: `knowledge-base/CLAUDE.md`）
+- `docs/knowledge-base-nihongo-hiroba.md` — 本プロジェクトの先行知見（§1 supabase-py 罠 / §2 RLS 循環 / §3 python-magic / §4 モックテスト限界。2026-10-02 に shared から移した）
+- （フトコロ・golf-compe の引き継ぎ文書と汎用実装教訓への参照は、2026-10-02 に shared から切り離したため外した）
 - `CLAUDE.md`（プロジェクトルート） — Phase 1 の Agent Teams 並列実装指示書
 - `.handoff/CURRENT.md` — 現在の状態
 - `.handoff/cowork-to-claude-code.md`（[OPEN] 2026-05-08: Phase 2 調査）— 本タスクの起点
