@@ -1082,7 +1082,7 @@ local に実ファイルで配置すること（symlink ではなく `.claude/ru
 
 <important>
 🔴 **本ブロックはパスを列挙しない。** tier 判定 (a) の機械可読な入力は台帳 1 本だけで、ここへ二重に列挙するとその 1 本と drift するため（列挙側の drift は機械では見張れない）。
-[台帳の所在・行書式・登録基準・棚卸し] → ~/Projects/_shared-knowledge/rules/tiers.md#important-paths-ledger
+[台帳の所在・行書式・登録基準・棚卸し] → ~/Projects/_shared-knowledge/rules/important-paths-ledger.md#important-paths-ledger
 変更に注意すべきファイルの一覧は、本リポの台帳 `.handoff/important-paths.md` が持つ。
 台帳に当たるファイルを変更するときは影響範囲を慎重に評価しテストを充実させること。**変更前に PO（仁さん）へ報告する。**
 </important>

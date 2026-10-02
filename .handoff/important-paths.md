@@ -1,7 +1,7 @@
 <!-- format: 1 -->
 # important paths — tier 判定 (a) の機械可読な入力
 
-> [台帳の所在・行書式・登録基準・棚卸し手順] → ~/Projects/_shared-knowledge/rules/tiers.md#important-paths-ledger
+> [台帳の所在・行書式・登録基準・棚卸し手順] → ~/Projects/_shared-knowledge/rules/important-paths-ledger.md#important-paths-ledger
 
 ## paths
 
